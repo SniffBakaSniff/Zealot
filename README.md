@@ -1,1 +1,1 @@
-![Zealot CI](https://github.com/SniffBakaSniff/Zealot/actions/workflows/ci.yml/badge.svg)
+![Zealot CI](https://github.com/SniffBakaSniff/Zealot/actions/workflows/dotnet.yml/badge.svg)
