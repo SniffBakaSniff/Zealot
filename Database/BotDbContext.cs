@@ -12,6 +12,7 @@ namespace Zealot.Database
         public BotDbContext() { }
 
         public DbSet<GuildSettings> GuildSettings { get; set; }
+        public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
 
         public BotDbContext(DbContextOptions<BotDbContext> options)
             : base(options)
@@ -25,7 +26,7 @@ namespace Zealot.Database
             {
                 // Can use my VPS's database server for this
                 optionsBuilder.UseNpgsql(
-                  "Host=VPS-IP;Database=CountingBotDb;Username=subaka;Password=Subaka1@;Maximum Pool Size=128;Minimum Pool Size=5;");
+                  "Host=localhost;Database=dev;Username=Subaka;Password=Subaka1@;Maximum Pool Size=128;Minimum Pool Size=5;");
             }
         }
 
