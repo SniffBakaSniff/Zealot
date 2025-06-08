@@ -24,11 +24,11 @@ namespace Zealot.Commands
             }
 
             // Notifies the user if the amount is outside the valid range (1–100).
-                if (amount < 1 || amount > 100)
-                {
-                    await ctx.RespondAsync("❌ Amount must be between 1 and 100.");
-                    return;
-                }
+            if (amount < 1 || amount > 100)
+            {
+                await ctx.RespondAsync("❌ Amount must be between 1 and 100.");
+                return;
+            }
 
             // Fallback to the current channel if none is provided.
             channel ??= ctx.Channel;
