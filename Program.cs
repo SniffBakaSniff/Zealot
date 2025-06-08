@@ -17,6 +17,7 @@ namespace Zealot
 {
     static class Program
     {
+        // Get bot start time to calculate uptime for the ping command
         public static readonly DateTime _botStartTime = DateTime.UtcNow;
         private static readonly string LogFilePath = "Data/logs/log.txt";
 

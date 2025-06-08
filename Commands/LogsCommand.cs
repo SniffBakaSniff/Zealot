@@ -1,8 +1,5 @@
 using DSharpPlus.Commands;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
-using Zealot.Services.Interfaces;
-using Zealot.Database.Models;
 using System.ComponentModel;
 
 namespace Zealot.Commands
@@ -102,7 +99,7 @@ namespace Zealot.Commands
                 embed.AddField($"Case #{log.CaseNumber} - `{log.ActionType}`", fieldValue, inline: false);
             }
 
-            await ctx.RespondAsync(embed: embed);
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(true));
         }
     }
 }
