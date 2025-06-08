@@ -7,12 +7,16 @@ namespace Zealot.Commands
     {
         // handle dependency injection here
         private readonly IModerationLogService _moderationLogService;
+        private readonly IGuildSettingService _guildSettingService;
 
         public CommandsGroup(
-            IModerationLogService moderationLogService
+            IModerationLogService moderationLogService,
+            IGuildSettingService guildSettingService
         )
         {
             _moderationLogService = moderationLogService;
+            _guildSettingService = guildSettingService;
         }
+
     }
 }

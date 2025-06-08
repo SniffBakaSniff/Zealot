@@ -1,8 +1,8 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Zealot.Database.Models;
 
-namespace Zealot.Database
+namespace Zealot.Databases
 {
     /// <summary>
     /// Database context for the CountingBot application.
@@ -15,7 +15,6 @@ namespace Zealot.Database
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
 
         public BotDbContext(DbContextOptions<BotDbContext> options)
-            : base(options)
         {
         }
 

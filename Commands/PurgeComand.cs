@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Zealot.Commands
 {
@@ -15,6 +17,12 @@ namespace Zealot.Commands
             [Description("Target a specific channel to purge messages from. Defaults to the current channel.")] DiscordChannel? channel = null,
             [Description("Reason for the purge.")] string? reason = null)
         {
+           // Increment by 1 to exlude the command message
+            if (ctx is TextCommandContext)
+            {
+                amount++;
+            }
+
             // Notifies the user if the amount is outside the valid range (1–100).
             if (amount < 1 || amount > 100)
             {
@@ -69,6 +77,12 @@ namespace Zealot.Commands
 
             // Confirm the deletion with a temporary embed message.
             int totalMessages = filteredMessages.Count;
+
+            // Decrement by 1 to exlude the command message
+            if (ctx is TextCommandContext)
+            {
+                totalMessages--;
+            }
             var responseEmbed = new DiscordEmbedBuilder()
                 .WithDescription($"✅ Deleted {totalMessages} message(s).")
                 .WithColor(DiscordColor.Gray);
