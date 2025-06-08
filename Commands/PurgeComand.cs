@@ -2,7 +2,6 @@ using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Zealot.Commands
 {
