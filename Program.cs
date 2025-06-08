@@ -12,6 +12,7 @@ using Zealot.Database;
 using Zealot.Attributes;
 using Zealot.Commands;
 using Zealot.Services.Interfaces;
+using Zealot.Databases;
 
 namespace Zealot
 {
@@ -66,7 +67,7 @@ namespace Zealot
         private static void ConfigureSerilog()
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
+                .MinimumLevel.Warning()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
@@ -107,8 +108,11 @@ namespace Zealot
                 services.AddDbContext<BotDbContext>();
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
                 services.AddScoped<IModerationLogService, ModerationLogService>();
+                services.AddScoped<IGuildSettingService, GuildSettingService>();
+
                 // Add other essential services here
             });
+
         }
 
         private static void ConfigureCommands(DiscordClientBuilder builder)

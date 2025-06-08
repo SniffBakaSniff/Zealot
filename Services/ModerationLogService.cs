@@ -2,6 +2,7 @@ using Zealot.Database;
 using Zealot.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Zealot.Database.Models;
+using Zealot.Databases;
 
 namespace Zealot.Services
 {

@@ -1,6 +1,8 @@
+using Zealot.Services;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Entities;
+using Zealot.Services.Interfaces;
 
 namespace Zealot.Services
 {
@@ -10,6 +12,16 @@ namespace Zealot.Services
     /// </summary>
     public class CustomPrefixResolver : IPrefixResolver
     {
+        private readonly IGuildSettingService _guildSettingsService;
+
+        /// <summary>
+        /// Initializes a new instance of the CustomPrefixResolver.
+        /// </summary>
+        /// <param name="guildSettingsService">Service for accessing guild-specific settings</param>
+        public CustomPrefixResolver(IGuildSettingService guildSettingsService)
+        {
+            _guildSettingsService = guildSettingsService;
+        }
 
         /// <summary>
         /// Resolves the command prefix for a given message.
@@ -28,16 +40,16 @@ namespace Zealot.Services
                 return -1;
             }
 
-            string[] prefixes = ["!", "~"]; // Placeholder until we have a method to set/get guild specific prefix
-
-            foreach (var p in prefixes)
+            if (message.Channel.GuildId.HasValue)
             {
-                if (message.Content.StartsWith(p, StringComparison.OrdinalIgnoreCase))
+                var guildId = message.Channel.GuildId.Value;
+                var prefix = await _guildSettingsService.GetGuildPrefixAsync(guildId);
+                if (message.Content.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    return p.Length;
+                    return prefix.Length;
                 }
             }
-            
+
             return -1;
         }
     }
