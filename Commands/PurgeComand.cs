@@ -12,7 +12,8 @@ namespace Zealot.Commands
             [Description("Number of messages to delete. (Max: 100)")] int amount,
             [Description("Only delete messages sent within the last X minutes.")] int? time = null,
             [Description("Only delete messages sent by this user.")] DiscordUser? user = null,
-            [Description("Target a specific channel to purge messages from. Defaults to the current channel.")] DiscordChannel? channel = null)
+            [Description("Target a specific channel to purge messages from. Defaults to the current channel.")] DiscordChannel? channel = null,
+            [Description("Reason for the purge.")] string? reason = null)
         {
             // Notifies the user if the amount is outside the valid range (1–100).
             if (amount < 1 || amount > 100)
@@ -23,6 +24,7 @@ namespace Zealot.Commands
 
             // Fallback to the current channel if none is provided.
             channel ??= ctx.Channel;
+            user ??= null;
             var messages = new List<DiscordMessage>();
 
             // Fetches up to 100 of the most recent messages from the specified channel
@@ -56,6 +58,14 @@ namespace Zealot.Commands
 
             // Delete the filtered messages from the channel.
             await channel.DeleteMessagesAsync(filteredMessages);
+
+            // Log the purge
+            await _moderationLogService.LogModeratorActionAsync(
+                ctx.Guild!.Id,
+                null,
+                ctx.User.Id,
+                ModerationType.purge.ToString());
+
 
             // Confirm the deletion with a temporary embed message.
             int totalMessages = filteredMessages.Count;

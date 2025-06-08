@@ -11,11 +11,13 @@ using Zealot.Services;
 using Zealot.Database;
 using Zealot.Attributes;
 using Zealot.Commands;
+using Zealot.Services.Interfaces;
 
 namespace Zealot
 {
     static class Program
     {
+        // Get bot start time to calculate uptime for the ping command
         public static readonly DateTime _botStartTime = DateTime.UtcNow;
         private static readonly string LogFilePath = "Data/logs/log.txt";
 
@@ -104,6 +106,7 @@ namespace Zealot
             {
                 services.AddDbContext<BotDbContext>();
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
+                services.AddScoped<IModerationLogService, ModerationLogService>();
                 // Add other essential services here
             });
         }
@@ -141,7 +144,7 @@ namespace Zealot
         private static void ConfigureLogging()
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
+                .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File(LogFilePath, rollingInterval: RollingInterval.Day)

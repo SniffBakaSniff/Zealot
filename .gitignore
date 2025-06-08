@@ -3,3 +3,4 @@
 /obj
 .gitattributes
 /Data/logs
+/Migrations
