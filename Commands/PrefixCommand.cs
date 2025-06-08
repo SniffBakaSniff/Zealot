@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Zealot.Commands
 {

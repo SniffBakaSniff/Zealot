@@ -1,7 +1,7 @@
-using Zealot.Services;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Entities;
+
 using Zealot.Services.Interfaces;
 
 namespace Zealot.Services

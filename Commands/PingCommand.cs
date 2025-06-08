@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 
-using Zealot;
 using Zealot.Attributes;
 
 namespace Zealot.Commands
@@ -38,6 +36,5 @@ namespace Zealot.Commands
                     .AsEphemeral(ephemeral)
             );
         }
-
     }
 }

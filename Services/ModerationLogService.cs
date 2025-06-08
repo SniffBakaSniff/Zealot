@@ -1,6 +1,6 @@
-using Zealot.Database;
-using Zealot.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+
+using Zealot.Services.Interfaces;
 using Zealot.Database.Models;
 using Zealot.Databases;
 

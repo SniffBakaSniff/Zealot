@@ -7,8 +7,8 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
+
 using Zealot.Services;
-using Zealot.Database;
 using Zealot.Attributes;
 using Zealot.Commands;
 using Zealot.Services.Interfaces;
