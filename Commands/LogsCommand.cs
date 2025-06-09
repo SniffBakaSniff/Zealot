@@ -16,7 +16,8 @@ namespace Zealot.Commands
             [Description("Only show logs created after this date (YYYY-MM-DDTHH:MM).")] string? createdAfter = null,
             [Description("Only show logs created before this date (YYYY-MM-DDTHH:MM).")] string? createdBefore = null,
             [Description("Page Number.")] int page = 1,
-            [Description("Number of items per page.")] int pageSize = 10
+            [Description("Number of items per page.")] int pageSize = 5,
+            [Description("Send the response as ephemeral?")] bool ephemeral = true
         )
         {
             // Send a message if the command is sent in DMs
@@ -59,7 +60,9 @@ namespace Zealot.Commands
                 moderatorId: moderatorId,
                 actionType: actionType?.ToString(),
                 createdAfter: after,
-                createdBefore: before
+                createdBefore: before,
+                pageSize: pageSize,
+                page: page
             );
 
             // Send a message if no logs match the filter.
@@ -69,12 +72,7 @@ namespace Zealot.Commands
                 return;
             }
 
-            // Pagination after fetching:
-            var pagedLogs = logs
-                .OrderByDescending(log => log.CaseNumber)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            
 
             // Make the embed for the Logs
             var embed = new DiscordEmbedBuilder()
@@ -84,7 +82,7 @@ namespace Zealot.Commands
                 .WithTimestamp(DateTimeOffset.UtcNow);
 
             // Populate the embed with log items
-            foreach (var log in pagedLogs)
+            foreach (var log in logs)
             {
                 var unixTimestamp = new DateTimeOffset(log.CreatedAt).ToUnixTimeSeconds();
 
@@ -99,7 +97,7 @@ namespace Zealot.Commands
                 embed.AddField($"Case #{log.CaseNumber} - `{log.ActionType}`", fieldValue, inline: false);
             }
 
-            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(true));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
         }
     }
 }
