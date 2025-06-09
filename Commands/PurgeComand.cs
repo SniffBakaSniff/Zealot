@@ -16,7 +16,7 @@ namespace Zealot.Commands
             [Description("Target a specific channel to purge messages from. Defaults to the current channel.")] DiscordChannel? channel = null,
             [Description("Reason for the purge.")] string? reason = null)
         {
-           // Increment by 1 to exlude the command message
+            // Increment by 1 to exlude the command message
             if (ctx is TextCommandContext)
             {
                 amount++;
@@ -63,17 +63,6 @@ namespace Zealot.Commands
                 return;
             }
 
-            // Delete the filtered messages from the channel.
-            await channel.DeleteMessagesAsync(filteredMessages);
-
-            // Log the purge
-            await _moderationLogService.LogModeratorActionAsync(
-                ctx.Guild!.Id,
-                null,
-                ctx.User.Id,
-                ModerationType.purge.ToString());
-
-
             // Confirm the deletion with a temporary embed message.
             int totalMessages = filteredMessages.Count;
 
@@ -82,12 +71,26 @@ namespace Zealot.Commands
             {
                 totalMessages--;
             }
+
+            // Build the embed and send it
             var responseEmbed = new DiscordEmbedBuilder()
                 .WithDescription($"✅ Deleted {totalMessages} message(s).")
                 .WithColor(DiscordColor.Gray);
+
             await ctx.RespondAsync(responseEmbed);
             await Task.Delay(3000); // Wait 3 seconds before deleting the confirmation.
             await ctx.DeleteResponseAsync();
+
+            // Log the purge
+            await _moderationLogService.LogModeratorActionAsync(
+                ctx.Guild!.Id,
+                null,
+                ctx.User.Id,
+                ModerationType.purge.ToString(),
+                embed: responseEmbed);
+                
+            // Delete the filtered messages from the channel.
+            await channel.DeleteMessagesAsync(filteredMessages);
         }
     }
 }

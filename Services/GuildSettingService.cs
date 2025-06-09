@@ -58,5 +58,43 @@ namespace Zealot.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<ulong?> GetModerationLogChannelAsync(ulong guildId)
+        {
+            var settings = await _dbContext.GuildSettings
+                .FirstOrDefaultAsync(s => s.GuildId == guildId);
+
+            return settings?.ModerationLogChannel;
+        }
+
+        // Task to set the ModerationLogChannel in the database
+        public async Task SetModerationLogChannelAsync(ulong guildId, ulong channelId)
+        {
+            // Try to get the current settings for the guild
+            var settings = await _dbContext.GuildSettings
+                .FirstOrDefaultAsync(s => s.GuildId == guildId);
+
+            if (settings == null)
+            {
+                // Create a new record if none exists
+                settings = new GuildSettings
+                {
+                    GuildId = guildId,
+                    ModerationLogChannel = channelId
+                };
+
+                await _dbContext.GuildSettings.AddAsync(settings);
+            }
+            else
+            {
+                // Update the existing ModerationLoggingChannel
+                settings.ModerationLogChannel = channelId;
+
+                _dbContext.GuildSettings.Update(settings);
+            }
+
+            // Save the changes to the database
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }

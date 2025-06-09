@@ -1,3 +1,5 @@
+using DSharpPlus.Entities;
+
 using Zealot.Database.Models;
 
 namespace Zealot.Services.Interfaces
@@ -15,6 +17,7 @@ namespace Zealot.Services.Interfaces
         /// <param name="duration">The duration of the action (for temporary actions), or null if permanent.</param>
         /// <param name="contextMessage">Additional context such as a message link or description.</param>
         /// <param name="expiresAt">When the action should expire, if applicable. (e.g., Temporary Mutes)</param>
+        /// <param name="embed">The DiscordEmbed to be sent to the logging channel.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task LogModeratorActionAsync(
             ulong guildId,
@@ -24,7 +27,8 @@ namespace Zealot.Services.Interfaces
             string? reason = null,
             TimeSpan? duration = null,
             string? contextMessage = null,
-            DateTimeOffset? expiresAt = null);
+            DateTimeOffset? expiresAt = null,
+            DiscordEmbed? embed = null);
 
         /// <summary>
         /// Retrieves a filtered list of moderator logs based on the specified parameters. 

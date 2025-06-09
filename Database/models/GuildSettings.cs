@@ -1,9 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Zealot.Database.Models;
-public class GuildSettings
+namespace Zealot.Database.Models
 {
-    [Key]
-    public ulong GuildId { get; set; }
-    public string Prefix { get; set; } = "!";
+    public class GuildSettings
+    {
+        [Key]
+        public ulong GuildId { get; set; }
+        public string Prefix { get; set; } = "!";
+        public ulong? ModerationLogChannel { get; set; }
+    }
 }
