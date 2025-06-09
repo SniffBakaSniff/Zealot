@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Entities;
 using Zealot.Attributes;
@@ -10,7 +11,7 @@ namespace Zealot.Commands
     {
         [Command("ban")]
         [Description("Bans a user from the server with an optional message deletion timeframe.")]
-        [PermissionCheck("")]
+        [RequirePermissions(DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to ban from the server.")] DiscordMember target,
             [Description("The reason for the ban.")] string reason,
@@ -72,13 +73,14 @@ namespace Zealot.Commands
                 target.Id,
                 ctx.User.Id,
                 ModerationType.ban.ToString(),
-                reason);
+                reason,
+                embed: embed);
 
             // Respond the the user
             await ctx.RespondAsync(response);
 
             // Ban the user
-            await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
+            //await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
         }
     }
 }
