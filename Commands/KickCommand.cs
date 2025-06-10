@@ -78,7 +78,7 @@ namespace Zealot.Commands
             // Send the response
             await ctx.RespondAsync(response);
 
-            //await ctx.Guild!.RemoveMemberAsync(target, reason);
+            await ctx.Guild!.RemoveMemberAsync(target, reason);
         }
     }
 }
