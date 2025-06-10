@@ -1,0 +1,57 @@
+using System.ComponentModel;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Entities;
+using Serilog;
+
+namespace Zealot.Commands
+{
+    public partial class CommandsGroup
+    {
+        [Command("unban")]
+        [Description("Unbans a user from the server.")]
+        [RequirePermissions(DiscordPermission.BanMembers)]
+        public async Task UnBanCommand(CommandContext ctx,
+            [Description("The UserID of the individual you want to unban.")] ulong userId,
+            [Description("The reason for the unban.")] string? reason = "No reason provided.",
+            [Description("Send the response as ephemeral?")] bool ephemeral = false)
+        {
+            // Fetch the user for embed
+            var user = await _client.GetUserAsync(userId);
+
+            // Create a invite url
+            var channel = ctx.Guild!.GetDefaultChannel();
+            var invite = await channel!.CreateInviteAsync(max_age: 0, max_uses: 0, temporary: false, unique: true);
+            string inviteUrl = invite.ToString();
+
+            // Create an embed to be sent to the unbanned user
+            var dmEmbed = new DiscordEmbedBuilder()
+                .WithDescription($"You have been unbanned from [{ctx.Guild!.Name}]({inviteUrl})")
+                .WithColor(DiscordColor.Gray)
+                .WithTimestamp(DateTime.UtcNow);
+
+            // Try and DM the user
+            try
+            {
+                await user.SendMessageAsync(dmEmbed);
+            }
+            catch (Exception ex) { Log.Error(ex, "Failed to send unban DM."); } // Do nothing if the DM fails
+
+            // Build an embed
+            var embed = new DiscordEmbedBuilder()
+                .WithDescription($"Successfully unbanned user {user.Mention}")
+                .WithColor(DiscordColor.Gray);
+
+            // Build response
+            var response = new DiscordInteractionResponseBuilder()
+                .AddEmbed(embed)
+                .AsEphemeral(ephemeral);
+
+            // Respond to the command user
+            await ctx.RespondAsync(response);
+
+            // Unban the user from the guild
+            await ctx.Guild!.UnbanMemberAsync(userId, reason);
+        }
+    }
+}
