@@ -4,3 +4,4 @@
 .gitattributes
 /Data/logs
 /Migrations
+/.idea
