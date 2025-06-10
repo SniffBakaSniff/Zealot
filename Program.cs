@@ -43,7 +43,6 @@ namespace Zealot
                 ConfigureServices(builder);
                 ConfigureCommands(builder);
                 ConfigureEventListeners(builder);
-                ConfigureLogging();
 
                 client = builder.Build();
 
@@ -67,8 +66,8 @@ namespace Zealot
         private static void ConfigureSerilog()
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Warning()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File(LogFilePath, rollingInterval: RollingInterval.Day)
@@ -110,9 +109,13 @@ namespace Zealot
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
 
+                services.AddLogging(logging =>
+                {
+                    logging.AddSerilog(Log.Logger, dispose: true);
+                });
+
                 // Add other essential services here
             });
-
         }
 
         private static void ConfigureCommands(DiscordClientBuilder builder)
@@ -123,7 +126,9 @@ namespace Zealot
                     extension.AddCommands([typeof(CommandsGroup)]);
 
                     var textCommandProcessor = new TextCommandProcessor(new TextCommandConfiguration());
-                    var slashCommandProcessor = new SlashCommandProcessor(new SlashCommandConfiguration());
+                    var slashCommandProcessor = new SlashCommandProcessor(
+                        new SlashCommandConfiguration { UnconditionallyOverwriteCommands = true } // Fix slow startup times
+                    );
 
                     extension.AddProcessors(textCommandProcessor);
                     extension.AddProcessor(slashCommandProcessor);
@@ -141,24 +146,8 @@ namespace Zealot
         {
             builder.ConfigureEventHandlers(events =>
             {
-                
+
             });
-        }
-
-        private static void ConfigureLogging()
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.File(LogFilePath, rollingInterval: RollingInterval.Day)
-                .CreateLogger();
-
-            TaskScheduler.UnobservedTaskException += (sender, eventArgs) =>
-            {
-                Log.Error(eventArgs.Exception, "Unobserved task exception occurred.");
-                eventArgs.SetObserved();
-            };
         }
 
         private static async Task PerformHealthCheck(BotDbContext dbContext)

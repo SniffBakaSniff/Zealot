@@ -1,3 +1,4 @@
+using DSharpPlus;
 using Zealot.Services.Interfaces;
 
 namespace Zealot.Commands
@@ -17,6 +18,5 @@ namespace Zealot.Commands
             _moderationLogService = moderationLogService;
             _guildSettingService = guildSettingService;
         }
-
     }
 }

@@ -3,7 +3,6 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Entities;
-using Zealot.Attributes;
 
 namespace Zealot.Commands
 {
@@ -16,7 +15,8 @@ namespace Zealot.Commands
             [RequireHigherUserHierarchy][Description("The user to ban from the server.")] DiscordMember target,
             [Description("The reason for the ban.")] string reason,
             [Description("How much of the user's recent message history to delete.")] TimeFrame deleteMessages = TimeFrame.None,
-            [Description("Whether to send the ban reason to the user via DM.")] bool sendReason = true)
+            [Description("Whether to send the ban reason to the user via DM.")] bool sendReason = true,
+            [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
             // Get the member from the guild
             var member = await ctx.Guild!.GetMemberAsync(target.Id);
@@ -30,7 +30,7 @@ namespace Zealot.Commands
                 target.IsBot)
             {
                 var errorEmbed = new DiscordEmbedBuilder()
-                    .WithDescription("You cannot ban this user. They are an **administrator**, a bot, or yourself.")
+                    .WithDescription("You cannot ban this user. They are an administrator, a bot, or yourself.")
                     .WithColor(DiscordColor.Gray);
 
                 await ctx.RespondAsync(embed: errorEmbed);
@@ -54,20 +54,21 @@ namespace Zealot.Commands
 
             // Create the ban messages embed (used for logs channel as well)
             var embed = new DiscordEmbedBuilder()
-            .WithTitle("User banned.")
-            .AddField("User:", $"{target.Mention}", true)
-            .AddField("User ID:", $"```{target.Id}```", false)
-            .AddField("Reason:", $"```{reason}```", false)
-            .WithThumbnail(target.AvatarUrl)
-            .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
-            .WithTimestamp(DateTime.UtcNow)
-            .WithColor(DiscordColor.Gray);
+                .WithTitle("User banned.")
+                .AddField("User:", $"{target.Mention}", true)
+                .AddField("User ID:", $"```{target.Id}```", false)
+                .AddField("Reason:", $"```{reason}```", false)
+                .WithThumbnail(target.AvatarUrl)
+                .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
+                .WithTimestamp(DateTime.UtcNow)
+                .WithColor(DiscordColor.Gray);
 
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed);
+                .AddEmbed(embed)
+                .AsEphemeral(ephemeral);
 
-            // Log the ban (Will add optional paramater for the embed, will make sending the mod logs easier)
+            // Log the ban 
             await _moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 target.Id,
@@ -80,7 +81,7 @@ namespace Zealot.Commands
             await ctx.RespondAsync(response);
 
             // Ban the user
-            //await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
+            await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
         }
     }
 }
