@@ -68,7 +68,7 @@ namespace Zealot.Services
             }
         }
 
-        public async Task<IEnumerable<ModeratorLogs>> GetModeratorLogsAsync(
+        public async Task<IEnumerable<ModeratorLogsDTO>> GetModeratorLogsAsync(
             ulong? guildId = null,
             ulong? userId = null,
             ulong? moderatorId = null,
@@ -109,7 +109,17 @@ namespace Zealot.Services
             query = query.Skip(skip).Take(pageSize);
 
             // Send the query
-            return await query.ToListAsync();
+            return await query
+                .Select(log => new ModeratorLogsDTO
+                {
+                    UserId = log.UserId,
+                    ModeratorId = log.ModeratorId,
+                    ActionType = log.ActionType,
+                    Reason = log.Reason,
+                    CreatedAt = log.CreatedAt,
+                    CaseNumber = log.CaseNumber
+                })
+                .ToListAsync();
         }
 
         /// <summary>

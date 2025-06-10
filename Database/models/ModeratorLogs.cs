@@ -31,3 +31,14 @@ public class ModeratorLogs
     [Required]
     public int CaseNumber { get; set; }
 }
+
+// Maybe find a better spot for this
+public class ModeratorLogsDTO
+{
+    public ulong? UserId { get; set; }
+    public ulong ModeratorId { get; set; }
+    public string ActionType { get; set; } = string.Empty;
+    public string? Reason { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public int CaseNumber { get; set; }
+}

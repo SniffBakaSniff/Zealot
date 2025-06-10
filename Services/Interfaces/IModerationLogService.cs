@@ -43,7 +43,7 @@ namespace Zealot.Services.Interfaces
         /// <param name="createdAfter">Optional lower bound for the creation timestamp.</param>
         /// <param name="createdBefore">Optional upper bound for the creation timestamp.</param>
         /// <returns>A list of moderator log entries that match the provided filters.</returns>
-        Task<IEnumerable<ModeratorLogs>> GetModeratorLogsAsync(
+        Task<IEnumerable<ModeratorLogsDTO>> GetModeratorLogsAsync(
         ulong? guildId = null,
         ulong? userId = null,
         ulong? moderatorId = null,
