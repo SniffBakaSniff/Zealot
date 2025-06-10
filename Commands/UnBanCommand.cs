@@ -18,7 +18,7 @@ namespace Zealot.Commands
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
             // Fetch the user for embed
-            var user = await ctx.Client.GetUserAsync(userId);
+            var user = await ctx.Client.GetUserAsync(userId, true);
 
             // Create a invite url
             var channel = ctx.Guild!.GetDefaultChannel();
@@ -32,10 +32,11 @@ namespace Zealot.Commands
                 .WithTimestamp(DateTime.UtcNow);
 
             // Try and DM the user
-            
+            try
+            {
                 await user.SendMessageAsync(dmEmbed);
-            
-            //catch (Exception ex) { Log.Error(ex, "Failed to send unban DM."); } // Do nothing if the DM fails
+            }
+            catch (Exception ex) { Log.Error(ex, "Failed to send unban DM."); } // Do nothing if the DM fails
 
             // Build an embed
             var embed = new DiscordEmbedBuilder()
