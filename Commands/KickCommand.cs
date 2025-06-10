@@ -8,29 +8,22 @@ namespace Zealot.Commands
 {
     public partial class CommandsGroup
     {
-        [Command("ban")]
-        [Description("Bans a user from the server with an optional message deletion timeframe.")]
-        [RequirePermissions(DiscordPermission.BanMembers)]
-        public async Task BanCommand(CommandContext ctx,
-            [RequireHigherUserHierarchy][Description("The user to ban from the server.")] DiscordMember target,
-            [Description("The reason for the ban.")] string reason,
-            [Description("How much of the user's recent message history to delete.")] TimeFrame deleteMessages = TimeFrame.None,
-            [Description("Whether to send the ban reason to the user via DM.")] bool sendReason = true,
+        [Command("kick")]
+        [Description("Kicks a user from the server.")]
+        [RequirePermissions(DiscordPermission.KickMembers)]
+        public async Task KickCommand(CommandContext ctx,
+            [RequireHigherUserHierarchy][Description("The user to kick from the server.")] DiscordMember target,
+            [Description("The reason for the kick.")] string? reason = null,
+            [Description("Whether to send the kick reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
-            // Get the member from the guild
-            var member = await ctx.Guild!.GetMemberAsync(target.Id);
-
-            // Convert the TimeFrame to a TimeSpan for discord
-            TimeSpan deleteSpan = TimeSpan.FromHours((int)deleteMessages);
-
             // Check if the target is an admin, bot, or the person issuing the command
-            if (member.Permissions.HasPermission(DiscordPermission.Administrator) ||
+            if (target.Permissions.HasPermission(DiscordPermission.Administrator) ||
                 target.Id == ctx.User.Id ||
                 target.IsBot)
             {
                 var errorEmbed = new DiscordEmbedBuilder()
-                    .WithDescription("You cannot ban this user. They are an administrator, a bot, or yourself.")
+                    .WithDescription("You cannot kick this user. They are an administrator, a bot, or yourself.")
                     .WithColor(DiscordColor.Gray);
 
                 await ctx.RespondAsync(embed: errorEmbed);
@@ -41,7 +34,7 @@ namespace Zealot.Commands
             try
             {
                 var dmEmbed = new DiscordEmbedBuilder()
-                    .WithTitle($"You have been banned from {ctx.Guild.Name}")
+                    .WithTitle($"You have been kicked from {ctx.Guild!.Name}")
                     .WithColor(DiscordColor.Gray)
                     .WithTimestamp(DateTime.UtcNow);
 
@@ -52,9 +45,9 @@ namespace Zealot.Commands
             }
             catch { } // Do nothing if the DM fails
 
-            // Create the ban messages embed (used for logs channel as well)
+            // Build and embed for the response
             var embed = new DiscordEmbedBuilder()
-                .WithTitle("User banned.")
+                .WithTitle("User Kicked.")
                 .AddField("User:", $"{target.Mention}", true)
                 .AddField("User ID:", $"```{target.Id}```", false)
                 .WithThumbnail(target.AvatarUrl)
@@ -70,23 +63,22 @@ namespace Zealot.Commands
 
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed)
-                .AsEphemeral(ephemeral);
+            .AddEmbed(embed)
+            .AsEphemeral(ephemeral);
 
             // Log the ban 
             await _moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 target.Id,
                 ctx.User.Id,
-                ModerationType.ban.ToString(),
+                ModerationType.kick.ToString(),
                 reason,
                 embed: embed);
 
-            // Respond the the user
+            // Send the response
             await ctx.RespondAsync(response);
 
-            // Ban the user
-            await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
+            //await ctx.Guild!.RemoveMemberAsync(target, reason);
         }
     }
 }
