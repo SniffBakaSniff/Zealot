@@ -14,7 +14,7 @@ namespace Zealot.Commands
         [RequirePermissions(DiscordPermission.BanMembers)]
         public async Task UnBanCommand(CommandContext ctx,
             [Description("The UserID of the individual you want to unban.")] ulong userId,
-            [Description("The reason for the unban.")] string? reason = "No reason provided.",
+            [Description("The reason for the unban.")] string? reason = null,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
             // Fetch the user
@@ -63,11 +63,16 @@ namespace Zealot.Commands
                 .WithTitle("User Unbanned.")
                 .AddField("User:", $"{user.Mention}", true)
                 .AddField("User ID:", $"```{user.Id}```", false)
-                .AddField("Reason:", $"```{reason}```", false)
                 .WithThumbnail(user.AvatarUrl)
                 .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
                 .WithTimestamp(DateTime.UtcNow)
                 .WithColor(DiscordColor.Gray);
+
+            // Only add the reason field if a reason is given.
+            if (reason is not null)
+            {
+                embed.AddField("Reason:", $"```{reason}```", false);
+            }
 
             // Log the unban
             await _moderationLogService.LogModeratorActionAsync(

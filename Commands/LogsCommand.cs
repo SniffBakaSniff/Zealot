@@ -72,8 +72,6 @@ namespace Zealot.Commands
                 return;
             }
 
-            
-
             // Make the embed for the Logs
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"📝 Moderator Logs ({logs.Count()} total)")
