@@ -66,7 +66,7 @@ namespace Zealot.Commands
             .AddEmbed(embed)
             .AsEphemeral(ephemeral);
 
-            // Log the ban 
+            // Log the ban
             await _moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 target.Id,
