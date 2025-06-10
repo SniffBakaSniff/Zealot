@@ -81,7 +81,7 @@ namespace Zealot.Commands
             await ctx.RespondAsync(response);
 
             // Ban the user
-            // await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
+            await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
         }
     }
 }

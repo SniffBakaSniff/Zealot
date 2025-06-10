@@ -9,15 +9,12 @@ namespace Zealot.Commands
         // handle dependency injection here
         private readonly IModerationLogService _moderationLogService;
         private readonly IGuildSettingService _guildSettingService;
-        private readonly DiscordClient _client;
 
         public CommandsGroup(
             IModerationLogService moderationLogService,
-            IGuildSettingService guildSettingService,
-            DiscordClient client
+            IGuildSettingService guildSettingService
         )
         {
-            _client = client;
             _moderationLogService = moderationLogService;
             _guildSettingService = guildSettingService;
         }
