@@ -17,8 +17,28 @@ namespace Zealot.Commands
             [Description("The reason for the unban.")] string? reason = "No reason provided.",
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
-            // Fetch the user for embed
+            // Fetch the user
             var user = await ctx.Client.GetUserAsync(userId, true);
+
+            // Check if the user is banned (Returns a NotFound if user isnt banned?? like why?? no easy null check for me 😭)
+            try
+            {
+                var banned = await ctx.Guild!.GetBanAsync(user);
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException)
+            {
+                // User is not banned, send ephemeral message
+                var noBanEmbed = new DiscordEmbedBuilder()
+                    .WithDescription($"The user {user.Mention} is not banned.")
+                    .WithColor(DiscordColor.Gray);
+
+                var noBanResponse = new DiscordInteractionResponseBuilder()
+                    .AddEmbed(noBanEmbed)
+                    .AsEphemeral(ephemeral);
+
+                await ctx.RespondAsync(noBanResponse);
+                return;
+            }
 
             // Create a invite url
             var channel = ctx.Guild!.GetDefaultChannel();
@@ -40,8 +60,23 @@ namespace Zealot.Commands
 
             // Build an embed
             var embed = new DiscordEmbedBuilder()
-                .WithDescription($"Successfully unbanned user {user.Mention}")
+                .WithTitle("User Unbanned.")
+                .AddField("User:", $"{user.Mention}", true)
+                .AddField("User ID:", $"```{user.Id}```", false)
+                .AddField("Reason:", $"```{reason}```", false)
+                .WithThumbnail(user.AvatarUrl)
+                .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
+                .WithTimestamp(DateTime.UtcNow)
                 .WithColor(DiscordColor.Gray);
+
+            // Log the unban
+            await _moderationLogService.LogModeratorActionAsync(
+                ctx.Guild!.Id,
+                user.Id,
+                ctx.User.Id,
+                ModerationType.ban.ToString(),
+                reason,
+                embed: embed);
 
             // Build response
             var response = new DiscordInteractionResponseBuilder()

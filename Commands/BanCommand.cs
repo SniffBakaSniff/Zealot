@@ -30,7 +30,7 @@ namespace Zealot.Commands
                 target.IsBot)
             {
                 var errorEmbed = new DiscordEmbedBuilder()
-                    .WithDescription("You cannot ban this user. They are an **administrator**, a bot, or yourself.")
+                    .WithDescription("You cannot ban this user. They are an administrator, a bot, or yourself.")
                     .WithColor(DiscordColor.Gray);
 
                 await ctx.RespondAsync(embed: errorEmbed);
@@ -54,21 +54,21 @@ namespace Zealot.Commands
 
             // Create the ban messages embed (used for logs channel as well)
             var embed = new DiscordEmbedBuilder()
-            .WithTitle("User banned.")
-            .AddField("User:", $"{target.Mention}", true)
-            .AddField("User ID:", $"```{target.Id}```", false)
-            .AddField("Reason:", $"```{reason}```", false)
-            .WithThumbnail(target.AvatarUrl)
-            .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
-            .WithTimestamp(DateTime.UtcNow)
-            .WithColor(DiscordColor.Gray);
+                .WithTitle("User banned.")
+                .AddField("User:", $"{target.Mention}", true)
+                .AddField("User ID:", $"```{target.Id}```", false)
+                .AddField("Reason:", $"```{reason}```", false)
+                .WithThumbnail(target.AvatarUrl)
+                .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
+                .WithTimestamp(DateTime.UtcNow)
+                .WithColor(DiscordColor.Gray);
 
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
                 .AddEmbed(embed)
                 .AsEphemeral(ephemeral);
 
-            // Log the ban (Will add optional paramater for the embed, will make sending the mod logs easier)
+            // Log the ban 
             await _moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 target.Id,
