@@ -68,6 +68,7 @@ namespace Zealot.Services
             }
         }
 
+        // Get a paginated list of the logs
         public async Task<IEnumerable<ModeratorLogsDTO>> GetModeratorLogsAsync(
             ulong? guildId = null,
             ulong? userId = null,
@@ -120,6 +121,16 @@ namespace Zealot.Services
                     CaseNumber = log.CaseNumber
                 })
                 .ToListAsync();
+        }
+
+        // Get a log based on the case number
+        public async Task<ModeratorLogs?> GetModerationLogByCaseNumberAsync(ulong guildId, int caseNumber)
+        {
+            var log = await _dbContext.ModeratorLogs
+                .Where(log => log.GuildId == guildId && log.CaseNumber == caseNumber)
+                .FirstOrDefaultAsync();
+
+            return log; // returns null if not found
         }
 
         /// <summary>

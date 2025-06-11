@@ -61,8 +61,9 @@ namespace Zealot.Commands
             // Build an embed
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("User Unbanned.")
-                .AddField("User:", $"{user.Mention}", true)
-                .AddField("User ID:", $"```{user.Id}```", false)
+                .AddField("User:", $"{user.Mention}")
+                .AddField("User ID:", $"```{user.Id}```")
+                .AddField("Moderator:", ctx.User.Mention)
                 .WithThumbnail(user.AvatarUrl)
                 .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
                 .WithTimestamp(DateTime.UtcNow)
@@ -71,7 +72,7 @@ namespace Zealot.Commands
             // Only add the reason field if a reason is given.
             if (reason is not null)
             {
-                embed.AddField("Reason:", $"```{reason}```", false);
+                embed.AddField("Reason:", $"```{reason}```");
             }
 
             // Log the unban
@@ -79,7 +80,7 @@ namespace Zealot.Commands
                 ctx.Guild!.Id,
                 user.Id,
                 ctx.User.Id,
-                ModerationType.ban.ToString(),
+                ModerationType.unban.ToString(),
                 reason,
                 embed: embed);
 
