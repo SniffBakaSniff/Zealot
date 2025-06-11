@@ -20,8 +20,13 @@
           with pkgs;
           mkShell {
             packages = [
-              dotnet-sdk_10
+	      # dotnet-aspnetcore_9
+	      # clang
+              dotnet-sdk_9
+	      stdenv.cc.cc.lib
             ];
+	    LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+	    DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
           };
       }
     );
