@@ -53,5 +53,13 @@ namespace Zealot.Services.Interfaces
         DateTimeOffset? createdBefore = null,
         int page = 1,
         int pageSize = 10);
+
+        /// <summary>
+        /// Retrieves a single moderator log entry by case number for the specified guild.
+        /// </summary>
+        /// <param name="guildId">The ID of the guild the log belongs to.</param>
+        /// <param name="caseNumber">The case number of the log to retrieve.</param>
+        /// <returns>The matching <c>ModeratorLogs</c> entry, or <c>null</c> if not found.</returns>
+        Task<ModeratorLogs?> GetModerationLogByCaseNumberAsync(ulong guildId, int caseNumber);
     }
 }

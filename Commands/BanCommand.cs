@@ -55,8 +55,9 @@ namespace Zealot.Commands
             // Create the ban messages embed (used for logs channel as well)
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("User banned.")
-                .AddField("User:", $"{target.Mention}", true)
-                .AddField("User ID:", $"```{target.Id}```", false)
+                .AddField("User:", $"{target.Mention}")
+                .AddField("User ID:", $"```{target.Id}```")
+                .AddField("Moderator:", ctx.User.Mention)
                 .WithThumbnail(target.AvatarUrl)
                 .WithFooter($"{ctx.User.GlobalName}", ctx.User.AvatarUrl)
                 .WithTimestamp(DateTime.UtcNow)
@@ -65,7 +66,7 @@ namespace Zealot.Commands
             // Only add the reason field if a reason is given.
             if (reason is not null)
             {
-                embed.AddField("Reason:", $"```{reason}```", false);
+                embed.AddField("Reason:", $"```{reason}```");
             }
 
             // Build the response
