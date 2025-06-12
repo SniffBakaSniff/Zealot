@@ -14,7 +14,7 @@ namespace Zealot.Commands
         public async Task KickCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to kick from the server.")] DiscordMember target,
             [Description("The reason for the kick.")] string? reason = null,
-            [Description("An image contatining evedince")] DiscordAttachment? image = null,
+            [Description("An image contatining evidence")] DiscordAttachment? image = null,
             [Description("Whether to send the kick reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {

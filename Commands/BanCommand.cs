@@ -14,7 +14,7 @@ namespace Zealot.Commands
         public async Task BanCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to ban from the server.")] DiscordMember target,
             [Description("The reason for the ban.")] string reason,
-            [Description("An image containg evedince.")] DiscordAttachment? image = null,
+            [Description("An image containg evidence.")] DiscordAttachment? image = null,
             [Description("How much of the user's recent message history to delete.")] TimeFrame deleteMessages = TimeFrame.None,
             [Description("Whether to send the ban reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
