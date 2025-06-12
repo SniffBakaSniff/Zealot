@@ -13,6 +13,7 @@ using Zealot.Attributes;
 using Zealot.Commands;
 using Zealot.Services.Interfaces;
 using Zealot.Databases;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Zealot
 {
@@ -189,7 +190,7 @@ namespace Zealot
 
         private static async Task StartStatusCycleAsync(DiscordClient client)
         {
-            Log.Information("Status Cycleing Initalizing");
+            Log.Information("Status Cycling Initializing");
             var statuses = new[]
             {
                 new DiscordActivity("Interpreting divine pings...", DiscordActivityType.Custom),
