@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using DSharpPlus.Entities;
-
 using Zealot.Services.Interfaces;
 using Zealot.Database.Models;
 using Zealot.Databases;
 using DSharpPlus;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace Zealot.Services
 {
@@ -31,9 +33,18 @@ namespace Zealot.Services
             TimeSpan? duration = null,
             string? contextMessage = null,
             DateTimeOffset? expiresAt = null,
-            DiscordEmbed? embed = null)
+            DiscordEmbed? embed = null,
+            DiscordAttachment? image = null)
         {
-            // create a log item 
+            // Convert the image to bytes if there is a image
+            byte[]? imageBytes = null;
+
+            if (image is not null)
+            {
+                imageBytes = await ConvertAttachmentToByteAsync(image);
+            }
+
+            // Create a log item 
             var log = new ModeratorLogs
             {
                 GuildId = guildId,
@@ -42,7 +53,7 @@ namespace Zealot.Services
                 ActionType = actionType,
                 Reason = reason,
                 Duration = duration,
-                ContextMessage = contextMessage,
+                Image = imageBytes,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = expiresAt,
             };
@@ -133,11 +144,40 @@ namespace Zealot.Services
             return log; // returns null if not found
         }
 
-        /// <summary>
-        /// Sends a Discord embed message to the configured moderation log channel for a guild.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild where the message should be sent.</param>
-        /// <param name="embed">The embed to send to the logging channel.</param>
+        // A Task to check if the attachment is a valid image or is less then 512kB
+        public Task<DiscordInteractionResponseBuilder?> IsValidAttachment(DiscordAttachment attachment)
+        {
+            // Check if its an image
+            if (attachment.MediaType is null || !attachment.MediaType.StartsWith("image/"))
+            {
+                // Build the embed to be returned
+                var embed = new DiscordEmbedBuilder()
+                    .WithDescription("The file you provided is not a valid image.")
+                    .WithColor(DiscordColor.Gray);
+
+                // Return the interaction response
+                var response = new DiscordInteractionResponseBuilder().AddEmbed(embed);
+                return Task.FromResult<DiscordInteractionResponseBuilder?>(response);
+            }
+
+            // Check if the image is within size constraint
+            if (attachment.FileSize > 1_024_000) // 1MB
+            {
+                // Build the embed to be returned
+                var embed = new DiscordEmbedBuilder()
+                    .WithDescription("The image exceeds the maximum file size limit of 512kB.")
+                    .WithColor(DiscordColor.Gray);
+
+                // Return the interaction response
+                var response = new DiscordInteractionResponseBuilder().AddEmbed(embed);
+                return Task.FromResult<DiscordInteractionResponseBuilder?>(response);
+            }
+
+            // Return null if it is a valid attachement
+            return Task.FromResult<DiscordInteractionResponseBuilder?>(null);
+        }
+
+        // Sends a Discord embed message to the configured moderation log channel for a guild.
         public async Task SendEmbedToLogsChannel(ulong guildId, DiscordEmbed embed)
         {
             // Get the moderation logging channel
@@ -155,5 +195,35 @@ namespace Zealot.Services
             // Send the embed to the Moderation Logging Channel
             await channel.SendMessageAsync(embed);
         }
+
+        // Helper Function to turn an image into bytes
+        public async Task<byte[]?> ConvertAttachmentToByteAsync(DiscordAttachment attachment)
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                var imageData = await httpClient.GetByteArrayAsync(attachment.Url);
+
+                using var inputStream = new MemoryStream(imageData);
+                using var image = Image.Load<Rgba32>(inputStream);
+
+                using var outputStream = new MemoryStream();
+                var webpEncoder = new WebpEncoder
+                {
+                    Quality = 60,
+                    FileFormat = WebpFileFormatType.Lossy
+                };
+
+                image.SaveAsWebp(outputStream, webpEncoder);
+
+                return outputStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error converting image to JPEG: {ex.Message}");
+                return null;
+            }
+        }
+
     }
 }
