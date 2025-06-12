@@ -108,6 +108,8 @@ namespace Zealot
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
+                services.AddScoped<TaskSchedulerService>();
+                services.AddScoped<CreateTask>();
 
                 services.AddLogging(logging =>
                 {
@@ -177,6 +179,9 @@ namespace Zealot
 
             await Task.Delay(1000);
 
+            var services = client.ServiceProvider!;
+            var scheduler = services.GetRequiredService<TaskSchedulerService>();
+            _ = scheduler.StartAsync(cts.Token);
             _ = StartStatusCycleAsync(client);
             Log.Information("Zealot is now running.");
             await Task.Delay(-1, cts.Token);

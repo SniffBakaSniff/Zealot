@@ -13,6 +13,7 @@ namespace Zealot.Databases
 
         public DbSet<GuildSettings> GuildSettings { get; set; }
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
+        public DbSet<ScheduledTasks> ScheduledTasks { get; set; }
 
         public BotDbContext(DbContextOptions<BotDbContext> options)
         {
