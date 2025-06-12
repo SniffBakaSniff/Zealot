@@ -14,6 +14,7 @@ namespace Zealot.Commands
         public async Task KickCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to kick from the server.")] DiscordMember target,
             [Description("The reason for the kick.")] string? reason = null,
+            [Description("An image contatining evedince")] DiscordAttachment? image = null,
             [Description("Whether to send the kick reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
@@ -27,6 +28,23 @@ namespace Zealot.Commands
                     .WithColor(DiscordColor.Gray);
 
                 await ctx.RespondAsync(embed: errorEmbed);
+                return;
+            }
+
+            // Make sure the image is withen certain parameters
+            if (image is not null && !image!.MediaType!.StartsWith("image/") ||
+                image is not null && image!.FileSize > 512_000) // 512kB
+            {
+                // Create and send an ephemeral embed stating that the image is not within the parameters
+                var badImageEmbed = new DiscordEmbedBuilder()
+                    .WithDescription("The attachement you provided is either not a valid image is greater then 512kB.")
+                    .WithColor(DiscordColor.Gray);
+
+                var badImageResponse = new DiscordInteractionResponseBuilder()
+                    .AddEmbed(badImageEmbed)
+                    .AsEphemeral(true);
+
+                await ctx.RespondAsync(badImageResponse);
                 return;
             }
 
@@ -61,6 +79,11 @@ namespace Zealot.Commands
                 embed.AddField("Reason:", $"```{reason}```", false);
             }
 
+            if (image is not null)
+            {
+                embed.WithImageUrl(image.Url!);
+            }
+
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
             .AddEmbed(embed)
@@ -73,6 +96,7 @@ namespace Zealot.Commands
                 ctx.User.Id,
                 ModerationType.kick.ToString(),
                 reason,
+                image: image,
                 embed: embed);
 
             // Send the response

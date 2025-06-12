@@ -63,13 +63,28 @@ namespace Zealot.Commands
                 return $"{duration.Seconds}s";
             }
 
-            // Build the response
-            var response = new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed)
-                .AsEphemeral(ephemeral);
+            if (log.Image is not null)
+            {
+                using var stream = new MemoryStream(log.Image);
+                string fileName = $"case_{log.CaseNumber}_image.jpg";
 
-            // Send the response
-            await ctx.RespondAsync(response);
+                embed.WithImageUrl($"attachment://{fileName}");
+
+                var builder = new DiscordInteractionResponseBuilder().AddEmbed(embed)
+                    .AddFile(fileName, stream)
+                    .AsEphemeral(ephemeral);
+
+                await ctx.RespondAsync(builder);
+                return;
+            }
+            else
+            {
+                var response = new DiscordInteractionResponseBuilder()
+                    .AddEmbed(embed)
+                    .AsEphemeral(ephemeral);
+
+                await ctx.RespondAsync(response);
+            }
         }
     }
 }

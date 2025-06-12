@@ -14,6 +14,7 @@ namespace Zealot.Commands
         public async Task BanCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to ban from the server.")] DiscordMember target,
             [Description("The reason for the ban.")] string reason,
+            [Description("An image containg evedince.")] DiscordAttachment? image = null,
             [Description("How much of the user's recent message history to delete.")] TimeFrame deleteMessages = TimeFrame.None,
             [Description("Whether to send the ban reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
@@ -34,6 +35,23 @@ namespace Zealot.Commands
                     .WithColor(DiscordColor.Gray);
 
                 await ctx.RespondAsync(embed: errorEmbed);
+                return;
+            }
+
+            // Make sure the image is withen certain parameters
+            if (image is not null && !image!.MediaType!.StartsWith("image/") ||
+                image is not null && image!.FileSize > 512_000) // 512kB
+            {
+                // Create and send an ephemeral embed stating that the image is not within the parameters
+                var badImageEmbed = new DiscordEmbedBuilder()
+                    .WithDescription("The attachement you provided is either not a valid image is greater then 512kB.")
+                    .WithColor(DiscordColor.Gray);
+
+                var badImageResponse = new DiscordInteractionResponseBuilder()
+                    .AddEmbed(badImageEmbed)
+                    .AsEphemeral(true);
+
+                await ctx.RespondAsync(badImageResponse);
                 return;
             }
 
@@ -69,10 +87,15 @@ namespace Zealot.Commands
                 embed.AddField("Reason:", $"```{reason}```");
             }
 
+            if (image is not null)
+            {
+                embed.WithImageUrl(image.Url!);
+            }
+
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed)
-                .AsEphemeral(ephemeral);
+            .AddEmbed(embed)
+            .AsEphemeral(ephemeral);
 
             // Log the ban 
             await _moderationLogService.LogModeratorActionAsync(
@@ -81,13 +104,14 @@ namespace Zealot.Commands
                 ctx.User.Id,
                 ModerationType.ban.ToString(),
                 reason,
+                image: image,
                 embed: embed);
 
             // Respond the the user
             await ctx.RespondAsync(response);
 
             // Ban the user
-            await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
+            //await ctx.Guild.BanMemberAsync(target.Id, deleteSpan, $"{reason} (Banned by {ctx.User.Username})");
         }
     }
 }

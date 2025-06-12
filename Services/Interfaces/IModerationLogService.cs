@@ -28,7 +28,8 @@ namespace Zealot.Services.Interfaces
             TimeSpan? duration = null,
             string? contextMessage = null,
             DateTimeOffset? expiresAt = null,
-            DiscordEmbed? embed = null);
+            DiscordEmbed? embed = null,
+            DiscordAttachment? image = null);
 
         /// <summary>
         /// Retrieves a filtered list of moderator logs based on the specified parameters. 

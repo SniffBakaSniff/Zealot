@@ -26,7 +26,7 @@ public class ModeratorLogs
 
     public DateTimeOffset? ExpiresAt { get; set; }
 
-    public string? ContextMessage { get; set; } // Change this to be the BYTEA for the DiscordAttachment
+    public byte[]? Image { get; set; }
 
     [Required]
     public int CaseNumber { get; set; }
