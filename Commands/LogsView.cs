@@ -77,14 +77,12 @@ namespace Zealot.Commands
                 await ctx.RespondAsync(builder);
                 return;
             }
-            else
-            {
-                var response = new DiscordInteractionResponseBuilder()
-                    .AddEmbed(embed)
-                    .AsEphemeral(ephemeral);
+            
+            var response = new DiscordInteractionResponseBuilder()
+                .AddEmbed(embed)
+                .AsEphemeral(ephemeral);
 
-                await ctx.RespondAsync(response);
-            }
+            await ctx.RespondAsync(response);
         }
     }
 }

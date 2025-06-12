@@ -6,7 +6,7 @@ using Zealot.Databases;
 using DSharpPlus;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace Zealot.Services
 {
@@ -37,11 +37,11 @@ namespace Zealot.Services
             DiscordAttachment? image = null)
         {
             // Convert the image to bytes if there is a image
-            byte[]? imageByte = null;
+            byte[]? imageBytes = null;
 
             if (image is not null)
             {
-                imageByte = await ConvertAttachmentToByteAsync(image);
+                imageBytes = await ConvertAttachmentToByteAsync(image);
             }
 
             // Create a log item 
@@ -53,7 +53,7 @@ namespace Zealot.Services
                 ActionType = actionType,
                 Reason = reason,
                 Duration = duration,
-                Image = imageByte,
+                Image = imageBytes,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = expiresAt,
             };
@@ -144,6 +144,39 @@ namespace Zealot.Services
             return log; // returns null if not found
         }
 
+        // A Task to check if the attachment is a valid image or is less then 512kB
+        public Task<DiscordInteractionResponseBuilder?> IsValidAttachment(DiscordAttachment attachment)
+        {
+            // Check if its an image
+            if (attachment.MediaType is null || !attachment.MediaType.StartsWith("image/"))
+            {
+                // Build the embed to be returned
+                var embed = new DiscordEmbedBuilder()
+                    .WithDescription("The file you provided is not a valid image.")
+                    .WithColor(DiscordColor.Gray);
+
+                // Return the interaction response
+                var response = new DiscordInteractionResponseBuilder().AddEmbed(embed);
+                return Task.FromResult<DiscordInteractionResponseBuilder?>(response);
+            }
+
+            // Check if the image is within size constraint
+            if (attachment.FileSize > 1_024_000) // 1MB
+            {
+                // Build the embed to be returned
+                var embed = new DiscordEmbedBuilder()
+                    .WithDescription("The image exceeds the maximum file size limit of 512kB.")
+                    .WithColor(DiscordColor.Gray);
+
+                // Return the interaction response
+                var response = new DiscordInteractionResponseBuilder().AddEmbed(embed);
+                return Task.FromResult<DiscordInteractionResponseBuilder?>(response);
+            }
+
+            // Return null if it is a valid attachement
+            return Task.FromResult<DiscordInteractionResponseBuilder?>(null);
+        }
+
         // Sends a Discord embed message to the configured moderation log channel for a guild.
         public async Task SendEmbedToLogsChannel(ulong guildId, DiscordEmbed embed)
         {
@@ -175,12 +208,13 @@ namespace Zealot.Services
                 using var image = Image.Load<Rgba32>(inputStream);
 
                 using var outputStream = new MemoryStream();
-                var jpegEncoder = new JpegEncoder
+                var webpEncoder = new WebpEncoder
                 {
-                    Quality = 80
+                    Quality = 60,
+                    FileFormat = WebpFileFormatType.Lossy
                 };
 
-                image.SaveAsJpeg(outputStream, jpegEncoder);
+                image.SaveAsWebp(outputStream, webpEncoder);
 
                 return outputStream.ToArray();
             }
@@ -190,5 +224,6 @@ namespace Zealot.Services
                 return null;
             }
         }
+
     }
 }

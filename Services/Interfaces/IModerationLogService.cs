@@ -62,5 +62,15 @@ namespace Zealot.Services.Interfaces
         /// <param name="caseNumber">The case number of the log to retrieve.</param>
         /// <returns>The matching <c>ModeratorLogs</c> entry, or <c>null</c> if not found.</returns>
         Task<ModeratorLogs?> GetModerationLogByCaseNumberAsync(ulong guildId, int caseNumber);
+
+        /// <summary>
+        /// Validates whether the provided attachment is an image and meets size constraints.
+        /// </summary>
+        /// <param name="attachment">The Discord attachment to validate.</param>
+        /// <returns>
+        /// A <see cref="DiscordInteractionResponseBuilder"/> containing an error message if the attachment is invalid;
+        /// otherwise, <c>null</c> if the attachment is valid.
+        /// </returns>
+        Task<DiscordInteractionResponseBuilder?> IsValidAttachment(DiscordAttachment attachment);
     }
 }

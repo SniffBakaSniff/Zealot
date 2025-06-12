@@ -14,10 +14,13 @@ namespace Zealot.Commands
         public async Task KickCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to kick from the server.")] DiscordMember target,
             [Description("The reason for the kick.")] string? reason = null,
-            [Description("An image contatining evidence")] DiscordAttachment? image = null,
+            [Description("An image to be attached as reference or evidence for this log entry")] DiscordAttachment? image = null,
             [Description("Whether to send the kick reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
+            // Defer the repsonse
+            await ctx.DeferResponseAsync();
+
             // Check if the target is an admin, bot, or the person issuing the command
             if (target.Permissions.HasPermission(DiscordPermission.Administrator) ||
                 target.Id == ctx.User.Id ||
@@ -27,25 +30,18 @@ namespace Zealot.Commands
                     .WithDescription("You cannot kick this user. They are an administrator, a bot, or yourself.")
                     .WithColor(DiscordColor.Gray);
 
-                await ctx.RespondAsync(embed: errorEmbed);
+                await ctx.EditResponseAsync(embed: errorEmbed);
                 return;
             }
 
-            // Make sure the image is withen certain parameters
-            if (image is not null && !image!.MediaType!.StartsWith("image/") ||
-                image is not null && image!.FileSize > 512_000) // 512kB
+            if (image is not null)
             {
-                // Create and send an ephemeral embed stating that the image is not within the parameters
-                var badImageEmbed = new DiscordEmbedBuilder()
-                    .WithDescription("The attachement you provided is either not a valid image is greater then 512kB.")
-                    .WithColor(DiscordColor.Gray);
-
-                var badImageResponse = new DiscordInteractionResponseBuilder()
-                    .AddEmbed(badImageEmbed)
-                    .AsEphemeral(true);
-
-                await ctx.RespondAsync(badImageResponse);
-                return;
+                var errorResponse = await _moderationLogService.IsValidAttachment(image);
+                if (errorResponse is not null)
+                {
+                    await ctx.EditResponseAsync(errorResponse);
+                    return;
+                }
             }
 
             // Attempt to DM the target user
@@ -100,8 +96,9 @@ namespace Zealot.Commands
                 embed: embed);
 
             // Send the response
-            await ctx.RespondAsync(response);
+            await ctx.EditResponseAsync(response);
 
+            // Kick the target
             await ctx.Guild!.RemoveMemberAsync(target, reason);
         }
     }
