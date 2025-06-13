@@ -109,7 +109,7 @@ namespace Zealot
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
-                services.AddScoped<TaskSchedulerService>();
+                services.AddScoped<ITaskSchedulerService, TaskSchedulerService>();
 
                 services.AddLogging(logging =>
                 {

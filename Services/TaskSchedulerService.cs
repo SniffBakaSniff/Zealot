@@ -4,7 +4,7 @@ using Zealot.Databases;
 
 namespace Zealot.Services
 {
-    public class TaskSchedulerService
+    public class TaskSchedulerService : ITaskSchedulerService
     {
         private readonly DiscordClient _client;
         private readonly BotDbContext _dbContext;

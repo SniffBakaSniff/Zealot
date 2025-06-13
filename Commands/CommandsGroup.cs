@@ -10,17 +10,17 @@ namespace Zealot.Commands
         // handle dependency injection here
         private readonly IModerationLogService _moderationLogService;
         private readonly IGuildSettingService _guildSettingService;
-        private readonly TaskSchedulerService _taskScheduler;
+        private readonly ITaskSchedulerService _taskSchedulerService;
 
         public CommandsGroup(
             IModerationLogService moderationLogService,
             IGuildSettingService guildSettingService,
-            TaskSchedulerService taskScheduler
+            ITaskSchedulerService taskSchedulerService
         )
         {
             _moderationLogService = moderationLogService;
             _guildSettingService = guildSettingService;
-            _taskScheduler = taskScheduler;
+            _taskSchedulerService = taskSchedulerService;
         }
     }
 }
