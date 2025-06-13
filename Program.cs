@@ -180,7 +180,7 @@ namespace Zealot
             await Task.Delay(1000);
 
             var services = client.ServiceProvider!;
-            var scheduler = services.GetRequiredService<TaskSchedulerService>();
+            var scheduler = services.GetRequiredService<ITaskSchedulerService>();
             _ = scheduler.StartAsync(cts.Token);
             _ = StartStatusCycleAsync(client);
             Log.Information("Zealot is now running.");
