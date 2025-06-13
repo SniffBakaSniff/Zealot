@@ -52,6 +52,21 @@ namespace Zealot.Services
             }
         }
 
+        // Create Tasks that will get executed later
+        public async Task AddTaskAsync(string taskType, ulong guildId, ulong userId, DateTime executeAt)
+        {
+            var newTask = new ScheduledTasks
+            {
+                TaskType = taskType,
+                GuildId = guildId,
+                UserId = userId,
+                ExecuteAt = executeAt,
+            };
+
+            _dbContext.ScheduledTasks.Add(newTask);
+            await _dbContext.SaveChangesAsync();
+        }
+
         // Basic handler for scheduled tasks
         private async Task HandleTaskAsync(ScheduledTasks task)
         {

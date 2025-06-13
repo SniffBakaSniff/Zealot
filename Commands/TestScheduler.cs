@@ -15,8 +15,8 @@ namespace Zealot.Commands
             var executeAtOffset = DateTimeOffset.UtcNow.AddMinutes(minutes);
             var executeAt = executeAtOffset.UtcDateTime;
 
-            await _createTask.AddTaskAsync(
-                taskType: "TestTask",
+            await _taskScheduler.AddTaskAsync(
+                taskType: TaskType.TestTask.ToString(),
                 guildId: ctx.Guild!.Id,
                 userId: ctx.User.Id,
                 executeAt: executeAt

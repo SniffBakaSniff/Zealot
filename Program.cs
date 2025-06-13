@@ -110,7 +110,6 @@ namespace Zealot
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
                 services.AddScoped<TaskSchedulerService>();
-                services.AddScoped<CreateTask>();
 
                 services.AddLogging(logging =>
                 {
