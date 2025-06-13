@@ -1,5 +1,6 @@
 public enum TaskType
 {
-    TestTask,
+    UnBan,
+    UnMute,
 
 }

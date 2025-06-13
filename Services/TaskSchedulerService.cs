@@ -70,11 +70,20 @@ namespace Zealot.Services
         // Basic handler for scheduled tasks
         private async Task HandleTaskAsync(ScheduledTasks task)
         {
+            var guild = await _client.GetGuildAsync(task.GuildId!.Value);
+            var user = await _client.GetUserAsync(task.UserId!.Value);
             switch (task.TaskType)
             {
-                case "TestTask":
-                    var user = await _client.GetUserAsync(task.UserId!.Value);
-                    await user.SendMessageAsync("This is a task that's been run.");
+                // Unbans a user. Might make it log the action.
+                case "UnBan":
+                    await guild.UnbanMemberAsync(user);
+                    break;
+                    
+                case "UnMute":
+                    ulong mutedRoleId = 1234567890; //This isnt implemented so putting placeholder
+                    var mutedRole = await guild.GetRoleAsync(mutedRoleId);
+                    var member = await guild.GetMemberAsync(user.Id);
+                    await member.RevokeRoleAsync(mutedRole);
                     break;
             }
         }
