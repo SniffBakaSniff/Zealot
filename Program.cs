@@ -13,7 +13,6 @@ using Zealot.Attributes;
 using Zealot.Commands;
 using Zealot.Services.Interfaces;
 using Zealot.Databases;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Zealot
 {

@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using Serilog;
 
 namespace Zealot.Commands
 {

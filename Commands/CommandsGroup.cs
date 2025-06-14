@@ -1,5 +1,3 @@
-using DSharpPlus;
-using Zealot.Services;
 using Zealot.Services.Interfaces;
 
 namespace Zealot.Commands
