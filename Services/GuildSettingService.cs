@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Zealot.Services.Interfaces;
 using Zealot.Database.Models;
 using Zealot.Databases;
-using System.Runtime.CompilerServices;
 
 namespace Zealot.Services
 {
