@@ -33,5 +33,20 @@ namespace Zealot.Services.Interfaces
         /// <param name="channelId">The ID of the channel to use for moderation logs.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task SetModerationLogChannelAsync(ulong guildId, ulong channelId);
+
+        /// <summary>
+        /// Sets the muted role ID for a specific guild.
+        /// </summary>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="roleId">The ID of the role to be used as the muted role.</param>
+        Task SetMutedRoleIdAsync(ulong guildId, ulong roleId);
+
+        /// <summary>
+        /// Retrieves the muted role ID for a specific guild.
+        /// </summary>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <returns>The ID of the muted role, or null if not set.</returns>
+        Task<ulong?> GetMutedRoleIdAsync(ulong guildId);
+        
     }
 }

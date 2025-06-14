@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Zealot.Services.Interfaces;
 using Zealot.Database.Models;
 using Zealot.Databases;
+using System.Runtime.CompilerServices;
 
 namespace Zealot.Services
 {
@@ -96,5 +97,43 @@ namespace Zealot.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        // Task to set the MutedRoleId in the database
+        public async Task SetMutedRoleIdAsync(ulong guildId, ulong roleId)
+        {
+            // Try to get the current settings for the guild
+            var settings = await _dbContext.GuildSettings
+                .FirstOrDefaultAsync(s => s.GuildId == guildId);
+
+            if (settings == null)
+            {
+                // Create a new record if none exists
+                settings = new GuildSettings
+                {
+                    GuildId = guildId,
+                    MutedRoleId = roleId
+                };
+
+                await _dbContext.GuildSettings.AddAsync(settings);
+            }
+            else
+            {
+                // Update the existing MutedRoleId
+                settings.MutedRoleId = roleId;
+
+                _dbContext.GuildSettings.Update(settings);
+            }
+
+            // Save the changes to the database
+            await _dbContext.SaveChangesAsync();
+        }
+
+        // Task to to get the MutedRoleId from the database
+        public async Task<ulong?> GetMutedRoleIdAsync(ulong guildId)
+        {
+            var settings = await _dbContext.GuildSettings
+                .FirstOrDefaultAsync(s => s.GuildId == guildId);
+
+            return settings?.MutedRoleId;
+        }
     }
 }
