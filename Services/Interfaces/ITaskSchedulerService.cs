@@ -15,5 +15,5 @@ public interface ITaskSchedulerService
     /// <param name="userId">The ID of the user the task is targeting.</param>
     /// <param name="executeAt">The date and time when the task should execute.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task AddTaskAsync(string taskType, ulong guildId, ulong userId, DateTime executeAt);
+    Task AddTaskAsync(TaskType taskType, ulong guildId, ulong userId, DateTime executeAt);
 }

@@ -1,7 +1,7 @@
 public class ScheduledTasks
 {
     public int Id { get; set; }
-    public string TaskType { get; set; } = null!;
+    public TaskType TaskType { get; set; }
     public DateTime ExecuteAt { get; set; }
     public ulong? GuildId { get; set; } = null;
     public ulong? ChannelId { get; set; } = null;

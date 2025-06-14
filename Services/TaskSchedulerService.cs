@@ -53,7 +53,7 @@ namespace Zealot.Services
         }
 
         // Create Tasks that will get executed later
-        public async Task AddTaskAsync(string taskType, ulong guildId, ulong userId, DateTime executeAt)
+        public async Task AddTaskAsync(TaskType taskType, ulong guildId, ulong userId, DateTime executeAt)
         {
             var newTask = new ScheduledTasks
             {
@@ -75,11 +75,11 @@ namespace Zealot.Services
             switch (task.TaskType)
             {
                 // Unbans a user. Might make it log the action.
-                case "UnBan":
+                case TaskType.UnBan:
                     await guild.UnbanMemberAsync(user);
                     break;
-                    
-                case "UnMute":
+
+                case TaskType.UnMute:
                     ulong mutedRoleId = 1234567890; //This isnt implemented so putting placeholder
                     var mutedRole = await guild.GetRoleAsync(mutedRoleId);
                     var member = await guild.GetMemberAsync(user.Id);
