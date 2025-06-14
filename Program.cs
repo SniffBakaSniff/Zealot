@@ -13,6 +13,7 @@ using Zealot.Attributes;
 using Zealot.Commands;
 using Zealot.Services.Interfaces;
 using Zealot.Databases;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Zealot
 {
@@ -108,6 +109,7 @@ namespace Zealot
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
+                services.AddScoped<ITaskSchedulerService, TaskSchedulerService>();
 
                 services.AddLogging(logging =>
                 {
@@ -177,6 +179,9 @@ namespace Zealot
 
             await Task.Delay(1000);
 
+            var services = client.ServiceProvider!;
+            var scheduler = services.GetRequiredService<ITaskSchedulerService>();
+            _ = scheduler.StartAsync(cts.Token);
             _ = StartStatusCycleAsync(client);
             Log.Information("Zealot is now running.");
             await Task.Delay(-1, cts.Token);
@@ -184,7 +189,7 @@ namespace Zealot
 
         private static async Task StartStatusCycleAsync(DiscordClient client)
         {
-            Log.Information("Status Cycleing Initalizing");
+            Log.Information("Status Cycling Initializing");
             var statuses = new[]
             {
                 new DiscordActivity("Interpreting divine pings...", DiscordActivityType.Custom),

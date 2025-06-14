@@ -1,4 +1,5 @@
 using DSharpPlus;
+using Zealot.Services;
 using Zealot.Services.Interfaces;
 
 namespace Zealot.Commands
@@ -9,14 +10,17 @@ namespace Zealot.Commands
         // handle dependency injection here
         private readonly IModerationLogService _moderationLogService;
         private readonly IGuildSettingService _guildSettingService;
+        private readonly ITaskSchedulerService _taskSchedulerService;
 
         public CommandsGroup(
             IModerationLogService moderationLogService,
-            IGuildSettingService guildSettingService
+            IGuildSettingService guildSettingService,
+            ITaskSchedulerService taskSchedulerService
         )
         {
             _moderationLogService = moderationLogService;
             _guildSettingService = guildSettingService;
+            _taskSchedulerService = taskSchedulerService;
         }
     }
 }
