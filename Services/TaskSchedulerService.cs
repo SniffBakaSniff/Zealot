@@ -1,6 +1,7 @@
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Zealot.Databases;
+using Zealot.Services.Interfaces;
 
 namespace Zealot.Services
 {
@@ -8,12 +9,17 @@ namespace Zealot.Services
     {
         private readonly DiscordClient _client;
         private readonly BotDbContext _dbContext;
+        private readonly IGuildSettingService _guildSettingService;
         private readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(10);
 
-        public TaskSchedulerService(DiscordClient client, BotDbContext dbContext)
+        public TaskSchedulerService(
+            DiscordClient client,
+            BotDbContext dbContext,
+            IGuildSettingService guildSettingService)
         {
             _client = client;
             _dbContext = dbContext;
+            _guildSettingService = guildSettingService;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -80,8 +86,12 @@ namespace Zealot.Services
                     break;
 
                 case TaskType.UnMute:
-                    ulong mutedRoleId = 1234567890; //This isnt implemented so putting placeholder
-                    var mutedRole = await guild.GetRoleAsync(mutedRoleId);
+                    ulong? mutedRoleId = await _guildSettingService.GetMutedRoleIdAsync(guild.Id);
+                    if (mutedRoleId is null)
+                    {
+                        return;
+                    }
+                    var mutedRole = await guild.GetRoleAsync(mutedRoleId.Value);
                     var member = await guild.GetMemberAsync(user.Id);
                     await member.RevokeRoleAsync(mutedRole);
                     break;

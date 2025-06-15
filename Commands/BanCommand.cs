@@ -41,7 +41,6 @@ namespace Zealot.Commands
                 return;
             }
 
-
             if (image is not null)
             {
                 var errorResponse = await _moderationLogService.IsValidAttachment(image);
