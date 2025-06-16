@@ -75,7 +75,7 @@ namespace Zealot.Commands
             // Make the embed for the Logs
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"📝 Moderator Logs ({logs.Count()} total)")
-                .WithColor(DiscordColor.Azure)
+                .WithColor(DiscordColor.Gray)
                 .WithFooter($"Requested by {ctx.User.Username} | Page {page}", ctx.User.AvatarUrl)
                 .WithTimestamp(DateTimeOffset.UtcNow);
 
