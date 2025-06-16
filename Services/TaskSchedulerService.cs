@@ -73,6 +73,25 @@ namespace Zealot.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        // Remove scheduled tasks
+        public async Task RemoveTaskAsync(TaskType taskType, ulong guildId, ulong userId)
+        {
+            // Get any tasks matching the criteria
+            var tasks = await _dbContext.ScheduledTasks
+                .Where(task =>
+                    task.TaskType == taskType &&
+                    task.GuildId == guildId &&
+                    task.UserId == userId)
+                .ToListAsync();
+
+            // Delete them if they exist
+            if (tasks.Any())
+            {
+                _dbContext.ScheduledTasks.RemoveRange(tasks);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
         // Basic handler for scheduled tasks
         private async Task HandleTaskAsync(ScheduledTasks task)
         {

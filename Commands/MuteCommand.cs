@@ -2,9 +2,6 @@ using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SixLabors.ImageSharp;
 
 namespace Zealot.Commands
 {
