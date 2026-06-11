@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Entities;
 
@@ -9,6 +10,7 @@ namespace Zealot.Commands
     {
         [Command("mute")]
         [Description("Mutes a user.")]
+        [RequirePermissions(DiscordPermission.ModerateMembers)]
         public async Task MuteCommand(CommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to ban from the server.")] DiscordMember target,
             [Description("The reason for the ban.")] string reason,
@@ -34,7 +36,7 @@ namespace Zealot.Commands
                 await ctx.RespondAsync(noRoleResponse);
                 return;
             }
-            
+
             // Get the muted role
             var muteRole = await ctx.Guild!.GetRoleAsync(mutedRoleId.Value);
 
