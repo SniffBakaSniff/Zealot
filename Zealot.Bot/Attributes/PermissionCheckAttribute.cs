@@ -4,6 +4,7 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using Serilog;
 
+// Can be Modified in the future for fully customizable per-server permission handilng.
 namespace Zealot.Bot.Attributes
 {
     /// <summary>

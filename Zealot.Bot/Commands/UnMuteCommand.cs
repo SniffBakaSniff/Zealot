@@ -16,6 +16,17 @@ namespace Zealot.Bot.Commands
             [Description("The reason for the unmute.")] string? reason = null,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
+            // Check if the moderator is higher in the hierarchy than the target.
+            if (target.Hierarchy >= ctx.Guild!.CurrentMember.Hierarchy)
+            {
+                await ctx.RespondAsync(
+                    new DiscordInteractionResponseBuilder()
+                        .WithContent("I cannot mute this user because their highest role is equal to or higher than mine.")
+                        .AsEphemeral(true));
+
+                return;
+            }
+
             ulong? mutedRoleId = await _guildSettingService.GetMutedRoleIdAsync(ctx.Guild!.Id);
 
             if (mutedRoleId is null)

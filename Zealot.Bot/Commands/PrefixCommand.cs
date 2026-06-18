@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 
 namespace Zealot.Bot.Commands
@@ -8,6 +9,7 @@ namespace Zealot.Bot.Commands
     {
         [Command("prefix")]
         [Description("Sets the command prefix for the bot.")]
+        [RequirePermissions(DiscordPermission.ModerateMembers)]
         public async Task prefix(CommandContext ctx,
         [Description("The new prefix for the bot. (e.g. `!` or `~`)")] string? prefix = null)
         {

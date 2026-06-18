@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02593" />
-    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02516" />
+    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02593" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

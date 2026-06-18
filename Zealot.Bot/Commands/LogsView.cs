@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 
 namespace Zealot.Bot.Commands
@@ -8,6 +9,7 @@ namespace Zealot.Bot.Commands
     {
         [Command("viewlog")]
         [Description("Command for viewing a specifc log.")]
+        [RequirePermissions(DiscordPermission.ModerateMembers)]
         public async Task LogsViewCommand(CommandContext ctx,
         [Description("The case number of the log you want to view.")] int caseNumber,
         [Description("Send the response as ephemeral?")] bool ephemeral = false)
@@ -39,6 +41,8 @@ namespace Zealot.Bot.Commands
 
             if (user is not null)
                 embed.AddField("User", user.Mention);
+                embed = embed.WithThumbnail(user!.GetAvatarUrl(DSharpPlus.MediaFormat.Auto));
+
 
             embed.AddField("Moderator:", moderator.Mention);
 

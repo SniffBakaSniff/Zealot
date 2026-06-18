@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Zealot.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+13ea1ae3069b63e78e2532afc4e381df41ea39d2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2d78926fe6198d5bca1b04fe37fef5d3b91d1a01")]
 [assembly: System.Reflection.AssemblyProductAttribute("Zealot.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Zealot.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

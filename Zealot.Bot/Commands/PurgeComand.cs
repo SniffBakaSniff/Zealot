@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
 
@@ -9,6 +10,7 @@ namespace Zealot.Bot.Commands
     {
         [Command("purge")]
         [Description("Deletes a batch of messages with optional filters.")]
+        [RequirePermissions(DiscordPermission.ModerateMembers)]
         public async Task PurgeCommand(CommandContext ctx,
             [Description("Number of messages to delete. (Max: 100)")] int amount,
             [Description("Only delete messages sent within the last X minutes.")] int? time = null,

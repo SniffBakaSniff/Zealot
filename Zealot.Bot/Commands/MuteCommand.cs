@@ -19,7 +19,18 @@ namespace Zealot.Bot.Commands
             [Description("Whether to send the ban reason to the user via DM.")] bool sendReason = true,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
         {
-            ulong? mutedRoleId = await _guildSettingService.GetMutedRoleIdAsync(ctx.Guild!.Id);
+            // Check if the moderator is higher in the hierarchy than the target.
+            if (target.Hierarchy >= ctx.Guild!.CurrentMember.Hierarchy)
+            {
+                await ctx.RespondAsync(
+                    new DiscordInteractionResponseBuilder()
+                        .WithContent("I cannot mute this user because their highest role is equal to or higher than mine.")
+                        .AsEphemeral(true));
+
+                return;
+            }
+
+            ulong? mutedRoleId = await _guildSettingService.GetMutedRoleIdAsync(ctx.Guild.Id);
 
             // Check if a MutedRoleId has been set
             if (mutedRoleId is null)
@@ -43,12 +54,12 @@ namespace Zealot.Bot.Commands
             // Check to see if the target has the role
             if (target.Roles.Contains(muteRole))
             {
-                var mutedEmebd = new DiscordEmbedBuilder()
+                var mutedEmebed = new DiscordEmbedBuilder()
                     .WithDescription("This user is already muted.")
                     .WithColor(DiscordColor.Gray);
 
                 var mutedResponse = new DiscordInteractionResponseBuilder()
-                    .AddEmbed(mutedEmebd)
+                    .AddEmbed(mutedEmebed)
                     .AsEphemeral(true);
 
                 // Send the response and end the interaction

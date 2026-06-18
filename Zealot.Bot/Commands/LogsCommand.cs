@@ -1,4 +1,5 @@
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using System.ComponentModel;
 
@@ -8,6 +9,7 @@ namespace Zealot.Bot.Commands
     {
         [Command("logs")]
         [Description("Fetches moderator logs with optional filters.")]
+        [RequirePermissions(DiscordPermission.ModerateMembers)]
         public async Task LogsCommand(
             CommandContext ctx,
             [Description("Filter by user ID.")] ulong? userId = null,
@@ -65,6 +67,9 @@ namespace Zealot.Bot.Commands
                 page: page
             );
 
+            int totalLogs = (await _moderationLogService.GetModeratorLogsAsync(ctx.Guild.Id)).Count();
+            int totalPages = (int)Math.Ceiling((double)totalLogs / pageSize);
+
             // Send a message if no logs match the filter.
             if (!logs.Any())
             {
@@ -74,9 +79,9 @@ namespace Zealot.Bot.Commands
 
             // Make the embed for the Logs
             var embed = new DiscordEmbedBuilder()
-                .WithTitle($"📝 Moderator Logs ({logs.Count()} total)")
+                .WithTitle($"📝 Moderator Logs ({totalLogs} total)")
                 .WithColor(DiscordColor.Gray)
-                .WithFooter($"Requested by {ctx.User.Username} | Page {page}", ctx.User.AvatarUrl)
+                .WithFooter($"Requested by {ctx.User.Username} | Page {page}/{totalPages}", ctx.User.AvatarUrl)
                 .WithTimestamp(DateTimeOffset.UtcNow);
 
             // Populate the embed with log items

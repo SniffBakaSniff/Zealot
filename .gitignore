@@ -5,3 +5,6 @@
 /Data/logs
 /Migrations
 /.idea
+/Zealot.Bot/bin
+/Zealot.Bot/obj
+/Zealot.Shared/Database/Migrations

@@ -12,6 +12,7 @@ namespace Zealot.Shared.Database
         public BotDbContext() { }
 
         public DbSet<GuildSettings> GuildSettings { get; set; }
+        public DbSet<WarningData> WarningData { get; set; }
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
         public DbSet<ScheduledTasks> ScheduledTasks { get; set; }
 

@@ -18,5 +18,9 @@ public enum ModerationType
     [ChoiceDisplayName("Kick")]
     kick,
     [ChoiceDisplayName("Purge")]
-    purge
+    purge,
+    [ChoiceDisplayName("Warn")]
+    warn,
+    [ChoiceDisplayName("Remove Warning")]
+    removeWarning
 }

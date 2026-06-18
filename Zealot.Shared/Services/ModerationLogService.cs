@@ -79,6 +79,7 @@ namespace Zealot.Shared.Services
             }
         }
 
+        #region Get Moderator Logs
         // Get a paginated list of the logs
         public async Task<IEnumerable<ModeratorLogsDTO>> GetModeratorLogsAsync(
             ulong? guildId = null,
@@ -143,6 +144,7 @@ namespace Zealot.Shared.Services
 
             return log; // returns null if not found
         }
+        #endregion
 
         // A Task to check if the attachment is a valid image or is less then 512kB
         public Task<DiscordInteractionResponseBuilder?> IsValidAttachment(DiscordAttachment attachment)
