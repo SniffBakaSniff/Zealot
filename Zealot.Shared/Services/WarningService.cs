@@ -32,8 +32,7 @@ namespace Zealot.Shared.Services
 
             int nextId = (await _dbContext.WarningData
                 .Where(x => x.GuildId == guildId)
-                .Select(x => x.WarningId)
-                .MaxAsync()) + 1;
+                .MaxAsync(x => (int?)x.WarningId) ?? 0) + 1;
 
             warning.WarningId = nextId;
 

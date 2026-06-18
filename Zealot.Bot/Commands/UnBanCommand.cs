@@ -74,14 +74,8 @@ namespace Zealot.Bot.Commands
                 embed.AddField("Reason:", $"```{reason}```");
             }
 
-            // Log the unban
-            await _moderationLogService.LogModeratorActionAsync(
-                ctx.Guild!.Id,
-                user.Id,
-                ctx.User.Id,
-                ModerationType.unban.ToString(),
-                reason,
-                embed: embed);
+            // Unban the user from the guild
+            await ctx.Guild!.UnbanMemberAsync(userId, reason);
 
             // Build response
             var response = new DiscordInteractionResponseBuilder()
@@ -91,8 +85,14 @@ namespace Zealot.Bot.Commands
             // Respond to the command user
             await ctx.RespondAsync(response);
 
-            // Unban the user from the guild
-            await ctx.Guild!.UnbanMemberAsync(userId, reason);
+            // Log the unban
+            await _moderationLogService.LogModeratorActionAsync(
+                ctx.Guild!.Id,
+                user.Id,
+                ctx.User.Id,
+                ModerationType.unban.ToString(),
+                reason,
+                embed: embed);
         }
     }
 }

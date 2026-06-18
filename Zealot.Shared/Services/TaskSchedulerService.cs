@@ -1,5 +1,6 @@
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Zealot.Shared.Database;
 using Zealot.Shared.Services.Interfaces;
 
@@ -8,18 +9,21 @@ namespace Zealot.Shared.Services
     public class TaskSchedulerService : ITaskSchedulerService
     {
         private readonly DiscordClient _client;
-        private readonly BotDbContext _dbContext;
-        private readonly IGuildSettingService _guildSettingService;
+        //private readonly BotDbContext _dbContext;
+        //private readonly IGuildSettingService _guildSettingService;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(10);
 
         public TaskSchedulerService(
             DiscordClient client,
-            BotDbContext dbContext,
-            IGuildSettingService guildSettingService)
+           //BotDbContext dbContext,
+           //IGuildSettingService guildSettingService,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _client = client;
-            _dbContext = dbContext;
-            _guildSettingService = guildSettingService;
+            //_dbContext = dbContext;
+            //_guildSettingService = guildSettingService;
+            _scopeFactory = serviceScopeFactory;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -28,9 +32,14 @@ namespace Zealot.Shared.Services
             {
                 try
                 {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var dbContext =
+                        scope.ServiceProvider.GetRequiredService<BotDbContext>();
+
                     var now = DateTime.UtcNow;
 
-                    var tasks = await _dbContext.ScheduledTasks
+                    var tasks = await dbContext.ScheduledTasks
                         .Where(task => task.ExecuteAt <= now)
                         .ToListAsync(cancellationToken);
 
@@ -39,15 +48,17 @@ namespace Zealot.Shared.Services
                         try
                         {
                             await HandleTaskAsync(task);
-                            _dbContext.ScheduledTasks.Remove(task);
+
+                            dbContext.ScheduledTasks.Remove(task);
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error executing task {task.Id}: {ex.Message}");
+                            Console.WriteLine(
+                                $"Error executing task {task.Id}: {ex.Message}");
                         }
                     }
 
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    await dbContext.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -61,6 +72,11 @@ namespace Zealot.Shared.Services
         // Create Tasks that will get executed later
         public async Task AddTaskAsync(TaskType taskType, ulong guildId, ulong userId, DateTime executeAt)
         {
+            // Create a new scope to get a new instance of the DbContext
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider
+                .GetRequiredService<BotDbContext>();
+
             var newTask = new ScheduledTasks
             {
                 TaskType = taskType,
@@ -69,15 +85,21 @@ namespace Zealot.Shared.Services
                 ExecuteAt = executeAt,
             };
 
-            _dbContext.ScheduledTasks.Add(newTask);
-            await _dbContext.SaveChangesAsync();
+            dbContext.ScheduledTasks.Add(newTask);
+            await dbContext.SaveChangesAsync();
         }
 
         // Remove scheduled tasks
         public async Task RemoveTaskAsync(TaskType taskType, ulong guildId, ulong userId)
         {
+
+            // Create a new scope to get new instances of the services
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider
+                .GetRequiredService<BotDbContext>();
+
             // Get any tasks matching the criteria
-            var tasks = await _dbContext.ScheduledTasks
+            var tasks = await dbContext.ScheduledTasks
                 .Where(task =>
                     task.TaskType == taskType &&
                     task.GuildId == guildId &&
@@ -87,14 +109,19 @@ namespace Zealot.Shared.Services
             // Delete them if they exist
             if (tasks.Any())
             {
-                _dbContext.ScheduledTasks.RemoveRange(tasks);
-                await _dbContext.SaveChangesAsync();
+                dbContext.ScheduledTasks.RemoveRange(tasks);
+                await dbContext.SaveChangesAsync();
             }
         }
 
         // Basic handler for scheduled tasks
         private async Task HandleTaskAsync(ScheduledTasks task)
         {
+            // Create a new scope to get new instances of the services
+            using var scope = _scopeFactory.CreateScope();
+            var guildSettingService = scope.ServiceProvider
+                .GetRequiredService<IGuildSettingService>();
+
             var guild = await _client.GetGuildAsync(task.GuildId!.Value);
             var user = await _client.GetUserAsync(task.UserId!.Value);
             switch (task.TaskType)
@@ -105,7 +132,7 @@ namespace Zealot.Shared.Services
                     break;
 
                 case TaskType.UnMute:
-                    ulong? mutedRoleId = await _guildSettingService.GetMutedRoleIdAsync(guild.Id);
+                    ulong? mutedRoleId = await guildSettingService.GetMutedRoleIdAsync(guild.Id);
                     if (mutedRoleId is null)
                     {
                         return;

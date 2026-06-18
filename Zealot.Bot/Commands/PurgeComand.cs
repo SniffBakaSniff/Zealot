@@ -79,6 +79,13 @@ namespace Zealot.Bot.Commands
                 .WithDescription($"✅ Deleted {totalMessages} message(s).")
                 .WithColor(DiscordColor.Gray);
 
+            // Delete the filtered messages from the channel.
+            await channel.DeleteMessagesAsync(filteredMessages);
+            
+            await ctx.RespondAsync(responseEmbed);
+            await Task.Delay(3000); // Wait 3 seconds before deleting the confirmation.
+            await ctx.DeleteResponseAsync();
+
             // Log the purge
             await _moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
@@ -86,13 +93,6 @@ namespace Zealot.Bot.Commands
                 ctx.User.Id,
                 ModerationType.purge.ToString(),
                 embed: responseEmbed);
-
-            // Delete the filtered messages from the channel.
-            await channel.DeleteMessagesAsync(filteredMessages);
-            
-            await ctx.RespondAsync(responseEmbed);
-            await Task.Delay(3000); // Wait 3 seconds before deleting the confirmation.
-            await ctx.DeleteResponseAsync();
         }
     }
 }

@@ -91,10 +91,16 @@ namespace Zealot.Bot.Commands
                 embed.WithImageUrl(image.Url!);
             }
 
+            // Kick the target
+            await ctx.Guild!.RemoveMemberAsync(target, reason);
+
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
             .AddEmbed(embed)
             .AsEphemeral(ephemeral);
+
+            // Send the response
+            await ctx.EditResponseAsync(response);
 
             // Log the ban
             await _moderationLogService.LogModeratorActionAsync(
@@ -105,12 +111,6 @@ namespace Zealot.Bot.Commands
                 reason,
                 image: image,
                 embed: embed);
-
-            // Send the response
-            await ctx.EditResponseAsync(response);
-
-            // Kick the target
-            await ctx.Guild!.RemoveMemberAsync(target, reason);
         }
     }
 }

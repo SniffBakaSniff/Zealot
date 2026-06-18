@@ -16,10 +16,6 @@ namespace Zealot.Shared.Database
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
         public DbSet<ScheduledTasks> ScheduledTasks { get; set; }
 
-        public BotDbContext(DbContextOptions<BotDbContext> options)
-        {
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Only configure if no options have been passed in (e.g., by dependency injection)

@@ -128,7 +128,13 @@ namespace Zealot.Bot.Commands
                 .AddEmbed(embed)
                 .AsEphemeral(ephemeral);
 
-            // Log the ban 
+            // Apply the role to the user
+            await target.GrantRoleAsync(muteRole);
+
+            // Respond to the interaction
+            await ctx.RespondAsync(response);
+
+            // Log the mute
             await _moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 target.Id,
@@ -138,12 +144,6 @@ namespace Zealot.Bot.Commands
                 duration,
                 image: image,
                 embed: embed);
-
-            // Apply the role to the user
-            await target.GrantRoleAsync(muteRole);
-
-            // Respond to the interaction
-            await ctx.RespondAsync(response);
         }
     }
 }

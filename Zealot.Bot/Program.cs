@@ -108,7 +108,7 @@ namespace Zealot.Bot
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
-                services.AddScoped<ITaskSchedulerService, TaskSchedulerService>();
+                services.AddSingleton<ITaskSchedulerService, TaskSchedulerService>();
                 services.AddScoped<IWarningService, WarningService>();
 
                 services.AddLogging(logging =>
