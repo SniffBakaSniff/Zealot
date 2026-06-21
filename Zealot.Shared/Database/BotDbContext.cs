@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using Zealot.Shared.Database.Models;
 
 namespace Zealot.Shared.Database
@@ -15,6 +14,7 @@ namespace Zealot.Shared.Database
         public DbSet<WarningData> WarningData { get; set; }
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
         public DbSet<ScheduledTasks> ScheduledTasks { get; set; }
+        public DbSet<GuildsData> GuildsData { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

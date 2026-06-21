@@ -13,6 +13,7 @@ using Zealot.Bot.Attributes;
 using Zealot.Bot.Commands;
 using Zealot.Shared.Services.Interfaces;
 using Zealot.Shared.Database;
+using Zealot.Bot.Events;
 
 namespace Zealot.Bot
 {
@@ -70,7 +71,9 @@ namespace Zealot.Bot
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File(LogFilePath, rollingInterval: RollingInterval.Day)
+                .WriteTo.File(
+                    LogFilePath,
+                    rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             TaskScheduler.UnobservedTaskException += (sender, eventArgs) =>
@@ -110,6 +113,7 @@ namespace Zealot.Bot
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
                 services.AddSingleton<ITaskSchedulerService, TaskSchedulerService>();
                 services.AddScoped<IWarningService, WarningService>();
+                services.AddScoped<IGuildDataService, GuildDataService>();
 
                 services.AddLogging(logging =>
                 {
@@ -148,7 +152,17 @@ namespace Zealot.Bot
         {
             builder.ConfigureEventHandlers(events =>
             {
+                events.HandleGuildCreated(async (client, args) =>
+                {
+                    var guildDataService = client.ServiceProvider!.GetRequiredService<IGuildDataService>();
+                    await GuildCreatedEvent.GuildCreatedHandler(client, args, guildDataService);
+                });
 
+                events.HandleGuildDeleted(async (client, args) =>
+                {
+                    var guildDataService = client.ServiceProvider!.GetRequiredService<IGuildDataService>();
+                    await GuildDeletedEvent.GuildDeletedHandler(client, args, guildDataService);
+                });
             });
         }
 
@@ -178,8 +192,14 @@ namespace Zealot.Bot
             };
 
             await Task.Delay(1000);
-
+      
             var services = client.ServiceProvider!;
+
+            await foreach (var guild in client.GetGuildsAsync())
+            {
+                await services.GetRequiredService<IGuildDataService>().AddClientGuilds(guild);
+            }
+
             var scheduler = services.GetRequiredService<ITaskSchedulerService>();
             _ = scheduler.StartAsync(cts.Token);
             _ = StartStatusCycleAsync(client);
