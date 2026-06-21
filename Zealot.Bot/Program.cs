@@ -23,6 +23,7 @@ namespace Zealot.Bot
         public static readonly DateTime _botStartTime = DateTime.UtcNow;
         private static readonly string LogFilePath = "Data/logs/log.txt";
 
+        #region Task.Main
         public static async Task Main(string[] args)
         {
             if (args.Length > 0)
@@ -63,7 +64,9 @@ namespace Zealot.Bot
                 await HandleShutdown(client);
             }
         }
+        #endregion
 
+        #region ConfigureSerilog
         private static void ConfigureSerilog()
         {
             Log.Logger = new LoggerConfiguration()
@@ -82,7 +85,9 @@ namespace Zealot.Bot
                 eventArgs.SetObserved();
             };
         }
+        #endregion
 
+        #region ValidateToken
         private static string ValidateDiscordToken()
         {
             var discordToken = Environment.GetEnvironmentVariable("ZEALOT_TOKEN");
@@ -94,7 +99,9 @@ namespace Zealot.Bot
             }
             return discordToken;
         }
+        #endregion
 
+        #region ClientBuilder
         private static DiscordClientBuilder CreateDiscordClientBuilder(string token)
         {
             return DiscordClientBuilder.CreateDefault(
@@ -102,7 +109,9 @@ namespace Zealot.Bot
                 DiscordIntents.All
             );
         }
+        #endregion
 
+        #region ConfigureServices
         private static void ConfigureServices(DiscordClientBuilder builder)
         {
             builder.ConfigureServices(services =>
@@ -123,7 +132,9 @@ namespace Zealot.Bot
                 // Add other essential services here
             });
         }
+        #endregion
 
+        #region ConfigureCommands
         private static void ConfigureCommands(DiscordClientBuilder builder)
         {
             builder.UseCommands(
@@ -147,26 +158,31 @@ namespace Zealot.Bot
                 }
             );
         }
+        #endregion
 
+        #region EventHandler
         private static void ConfigureEventListeners(DiscordClientBuilder builder)
         {
             builder.ConfigureEventHandlers(events =>
             {
-                static IGuildDataService GetService(DiscordClient client) {
-                    return client.ServiceProvider!.GetRequiredService<IGuildDataService>();
-                };
+                static T GetService<T>(DiscordClient client) where T : notnull
+                {
+                    return client.ServiceProvider!.GetRequiredService<T>();
+                }
 
                 events.HandleGuildCreated(async (client, args) =>
-                    await GuildCreatedEvent.GuildCreatedHandler(client, args, GetService(client)));
+                    await GuildCreatedEvent.GuildCreatedHandler(client, args, GetService<IGuildDataService>(client)));
 
                 events.HandleGuildDeleted(async (client, args) =>
-                    await GuildDeletedEvent.GuildDeletedHandler(client, args, GetService(client)));
+                    await GuildDeletedEvent.GuildDeletedHandler(client, args, GetService<IGuildDataService>(client)));
 
                 events.HandleGuildDownloadCompleted(async (client, args) => 
-                    await GuildDownloadCompletedEvent.GuildDownloadCompletedHandler(client, args, GetService(client)));
+                    await GuildDownloadCompletedEvent.GuildDownloadCompletedHandler(client, args, GetService<IGuildDataService>(client)));
             });
         }
+        #endregion
 
+        #region DbHealthCheck
         private static async Task PerformHealthCheck(BotDbContext dbContext)
         {
             try
@@ -179,7 +195,9 @@ namespace Zealot.Bot
                 Log.Fatal(ex, "Failed to connect to database");
             }
         }
+        #endregion
 
+        #region StartBot
         private static async Task StartBot(DiscordClient client)
         {
             var status = new DiscordActivity("Zealot", DiscordActivityType.Custom);
@@ -201,7 +219,9 @@ namespace Zealot.Bot
             Log.Information("Zealot is now running.");
             await Task.Delay(-1, cts.Token);
         }
+        #endregion
 
+        #region StatusCycling
         private static async Task StartStatusCycleAsync(DiscordClient client)
         {
             Log.Information("Status Cycling Initializing");
@@ -244,7 +264,9 @@ namespace Zealot.Bot
             });
             Log.Information("Status Cycleing Initalized");
         }
+        #endregion
 
+        #region HandleShutdown
         private static async Task HandleShutdown(DiscordClient? client)
         {
             if (client != null)
@@ -265,5 +287,6 @@ namespace Zealot.Bot
             Log.Warning("Zealot is shutting down... closing and flushing logs.");
             await Log.CloseAndFlushAsync();
         }
+        #endregion
     }
 }

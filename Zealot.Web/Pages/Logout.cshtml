@@ -1,0 +1,17 @@
+@page
+@model Zealot.Web.Pages.LogoutModel
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<section class="auth-shell" aria-labelledby="logout-title">
+    <div class="auth-panel">
+        <p class="eyebrow">Session</p>
+        <h1 id="logout-title">Sign out</h1>
+        <p>End your Zealot dashboard session on this browser.</p>
+
+        <form method="post">
+            <button class="btn btn-zealot" type="submit">Sign out</button>
+        </form>
+    </div>
+</section>

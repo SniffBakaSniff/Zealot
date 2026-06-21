@@ -1,0 +1,101 @@
+@page
+@model Zealot.Web.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<section class="dashboard-shell" aria-labelledby="dashboard-title">
+    <div class="dashboard-header">
+        <div class="user-lockup">
+            @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+            {
+                <img src="@Model.AvatarUrl" alt="" class="user-avatar" />
+            }
+            else
+            {
+                <span class="user-avatar user-avatar-fallback" aria-hidden="true">@Model.Initials</span>
+            }
+
+            <div>
+                <p class="eyebrow">Command access</p>
+                <h1 id="dashboard-title">@Model.DisplayName</h1>
+                <p class="dashboard-subtitle">Discord ID: @Model.DiscordId</p>
+            </div>
+        </div>
+
+        <form method="post" asp-page="/Logout">
+            <button class="btn btn-ghost" type="submit">Sign out</button>
+        </form>
+    </div>
+
+    <section class="management-layout" aria-label="Bot management template">
+        <aside class="guild-panel">
+            <p class="panel-kicker">Managed servers</p>
+            <div class="guild-list">
+                @foreach (var guild in Model.Guilds)
+                {
+                <button class="guild-row" type="button">
+                    <span>
+                        @if (!string.IsNullOrWhiteSpace(guild.IconUrl))
+                        {
+                            <img src="@guild.IconUrl" alt="@guild.Name" />
+                        }
+                        else
+                        {
+                            <span class="guild-avatar-fallback" aria-hidden="true">@guild.Name[0]</span>
+                        }
+                    </span>
+
+                    <div>
+                        <strong>@guild.Name</strong>
+                    </div>
+                </button>
+                }
+            </div>
+        </aside>
+
+        <div class="settings-panel">
+            <div class="settings-header">
+                <div>
+                    <p class="eyebrow">Server configuration</p>
+                    <h2>Zealot control template</h2>
+                </div>
+                <span class="status-pill">Read-only mockup</span>
+            </div>
+
+            <div class="setting-grid">
+                <article class="setting-card">
+                    <span class="tool-mark">Prefix</span>
+                    <h3>Command prefix</h3>
+                    <p>Preview where per-server command prefix controls will live.</p>
+                    <input type="text" value="!" disabled />
+                </article>
+
+                <article class="setting-card">
+                    <span class="tool-mark">Logs</span>
+                    <h3>Moderation log channel</h3>
+                    <p>Placeholder for selecting the channel where case embeds are posted.</p>
+                    <select disabled>
+                        <option>#mod-logs</option>
+                    </select>
+                </article>
+
+                <article class="setting-card">
+                    <span class="tool-mark">Roles</span>
+                    <h3>Muted role</h3>
+                    <p>Template control for choosing which role Zealot applies during mutes.</p>
+                    <select disabled>
+                        <option>Muted</option>
+                    </select>
+                </article>
+
+                <article class="setting-card">
+                    <span class="tool-mark">Cases</span>
+                    <h3>Recent moderation</h3>
+                    <p>Future home for warnings, bans, mutes, purges, and audit search.</p>
+                    <button class="btn btn-ghost" type="button" disabled>Coming soon</button>
+                </article>
+            </div>
+        </div>
+    </section>
+</section>

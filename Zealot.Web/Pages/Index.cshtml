@@ -1,10 +1,79 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-hero" aria-labelledby="home-title">
+    <div class="hero-copy">
+        <p class="eyebrow">Discord moderation command center</p>
+        <h1 id="home-title">Zealot keeps order when chat gets loud.</h1>
+        <p class="hero-summary">
+            A focused moderation bot for warnings, mutes, bans, audit logs, and timed actions across your servers.
+        </p>
+
+        <div class="hero-actions" aria-label="Primary actions">
+            <a class="btn btn-zealot" href="#moderation">View tools</a>
+            <a class="btn btn-ghost" href="#status">Check status</a>
+        </div>
+    </div>
+
+    <div class="hero-panel" aria-label="Zealot moderation status">
+        <div class="panel-header">
+            <span class="sigil" aria-hidden="true">Z</span>
+            <div>
+                <p class="panel-kicker">Live doctrine</p>
+                <h2>Moderation ready</h2>
+            </div>
+        </div>
+
+        <div class="console-lines">
+            <p><span>prefix</span> per-guild command routing enabled</p>
+            <p><span>logs</span> evidence and case history retained</p>
+            <p><span>timers</span> scheduled unmutes and unbans queued</p>
+            <p><span>guards</span> hierarchy and permission checks active</p>
+        </div>
+    </div>
+</section>
+
+<section id="moderation" class="tool-grid" aria-label="Moderation tools">
+    <article class="tool-card">
+        <span class="tool-mark">01</span>
+        <h2>Warnings</h2>
+        <p>Track user behavior with guild-scoped warning records and moderator attribution.</p>
+    </article>
+
+    <article class="tool-card">
+        <span class="tool-mark">02</span>
+        <h2>Mutes</h2>
+        <p>Apply muted roles immediately and schedule automatic release when a duration is set.</p>
+    </article>
+
+    <article class="tool-card">
+        <span class="tool-mark">03</span>
+        <h2>Audit Logs</h2>
+        <p>Preserve moderation actions with reasons, case numbers, timestamps, and evidence images.</p>
+    </article>
+</section>
+
+<section id="status" class="status-band" aria-label="System status">
+    <div>
+        <p class="eyebrow">Current posture</p>
+        <h2>Built for quiet enforcement.</h2>
+    </div>
+
+    <dl class="status-list">
+        <div>
+            <dt>Commands</dt>
+            <dd>Slash and text</dd>
+        </div>
+        <div>
+            <dt>Database</dt>
+            <dd>PostgreSQL</dd>
+        </div>
+        <div>
+            <dt>Runtime</dt>
+            <dd>.NET 9</dd>
+        </div>
+    </dl>
+</section>
