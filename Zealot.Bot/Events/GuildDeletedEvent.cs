@@ -11,7 +11,7 @@ namespace Zealot.Bot.Events
         // Handles the deletion of guild information in the database upon the triggering of the GuildDeletedEvent.
         public static async Task GuildDeletedHandler(DiscordClient client, GuildDeletedEventArgs e, IGuildDataService guildDataService)
         {
-            await guildDataService.RemoveClientGuild(e.Guild.Id);
+            await guildDataService.RemoveClientGuildAsync(e.Guild.Id);
         }
     }
 }

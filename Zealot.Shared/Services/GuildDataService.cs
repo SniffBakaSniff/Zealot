@@ -12,9 +12,10 @@ namespace Zealot.Shared.Services
     public class GuildDataService(BotDbContext dbContext) : IGuildDataService
     {
         private readonly BotDbContext _dbContext = dbContext;
- 
+
+        #region AddClientGuilds
         // Adds the guild information to the database
-        public async Task AddClientGuilds(DiscordGuild guild)
+        public async Task AddClientGuildsAsync(DiscordGuild guild)
         {
             try
             {
@@ -53,10 +54,11 @@ namespace Zealot.Shared.Services
             {
                 Log.Error("An Exception during: `AddClientGuilds` Exception: {ex}", ex);
             }
-        }
-
+        } 
+        #endregion
+        #region RemoveClientGuild
         // Removes the guild information from the database
-        public async Task RemoveClientGuild(ulong guildId)
+        public async Task RemoveClientGuildAsync(ulong guildId)
         {
             var existingGuild = await _dbContext.GuildsData.FindAsync(guildId);
 
@@ -66,24 +68,28 @@ namespace Zealot.Shared.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-
+        #endregion
+        #region GetAllGuildsAsync
         // Gets all guilds from the database
         public async Task<List<GuildsData>> GetAllGuildsAsync()
         {
             return await _dbContext.GuildsData.ToListAsync();
         }
-
+        #endregion
+        #region GetGuildByIdAsync
         // Gets a specific guild by its ID
         public async Task<GuildsData?> GetGuildByIdAsync(ulong guildId)
         {
             return await _dbContext.GuildsData.FindAsync(guildId);
         }
-
+        #endregion
+        #region GetGuildsByIdsAsync
         // Gets guilds by a list of IDs
         // Comapares the ID's of the users guilds and the bots guilds and returns the matching guilds from the database
         public async Task<List<GuildsData>> GetGuildsByIdsAsync(IEnumerable<ulong> guildIds)
         {
             return await _dbContext.GuildsData.Where(g => guildIds.Contains(g.GuildId)).ToListAsync();
         }
+        #endregion
     }
 }

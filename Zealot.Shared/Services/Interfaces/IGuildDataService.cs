@@ -11,14 +11,14 @@ namespace Zealot.Shared.Services.Interfaces
         /// </summary>
         /// <param name="guild">The guild for which to add information.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task AddClientGuilds(DiscordGuild guild);
+        Task AddClientGuildsAsync(DiscordGuild guild);
 
         /// <summary>
         /// Removes the guild information from the database.
         /// </summary>
         /// <param name="guildId">The ID of the guild to remove.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task RemoveClientGuild(ulong guildId);
+        Task RemoveClientGuildAsync(ulong guildId);
 
         /// <summary>
         /// Gets all guilds from the database.

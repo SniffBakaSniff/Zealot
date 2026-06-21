@@ -15,7 +15,7 @@ namespace Zealot.Bot.Events
             {
                 foreach (var guild in e.Guilds)
                 {
-                    await guildDataService.AddClientGuilds(guild.Value);
+                    await guildDataService.AddClientGuildsAsync(guild.Value);
                 }
             }
             catch(Exception ex)
