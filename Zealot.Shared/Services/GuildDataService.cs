@@ -54,7 +54,7 @@ namespace Zealot.Shared.Services
             {
                 Log.Error("An Exception during: `AddClientGuilds` Exception: {ex}", ex);
             }
-        } 
+        }
         #endregion
         #region RemoveClientGuild
         // Removes the guild information from the database

@@ -26,6 +26,7 @@ namespace Zealot.Shared.Services
             _scopeFactory = serviceScopeFactory;
         }
 
+        #region StartAsync
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -68,7 +69,9 @@ namespace Zealot.Shared.Services
                 await Task.Delay(_pollInterval, cancellationToken);
             }
         }
+        #endregion
 
+        #region AddTaskAsync
         // Create Tasks that will get executed later
         public async Task AddTaskAsync(TaskType taskType, ulong guildId, ulong userId, DateTime executeAt)
         {
@@ -88,7 +91,9 @@ namespace Zealot.Shared.Services
             dbContext.ScheduledTasks.Add(newTask);
             await dbContext.SaveChangesAsync();
         }
+        #endregion
 
+        #region RemoveTaskAsync
         // Remove scheduled tasks
         public async Task RemoveTaskAsync(TaskType taskType, ulong guildId, ulong userId)
         {
@@ -113,7 +118,9 @@ namespace Zealot.Shared.Services
                 await dbContext.SaveChangesAsync();
             }
         }
+        #endregion
 
+        #region HandleTaskAsync
         // Basic handler for scheduled tasks
         private async Task HandleTaskAsync(ScheduledTasks task)
         {
@@ -143,5 +150,6 @@ namespace Zealot.Shared.Services
                     break;
             }
         }
+        #endregion
     }
 }

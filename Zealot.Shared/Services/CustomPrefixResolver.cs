@@ -10,18 +10,13 @@ namespace Zealot.Shared.Services
     /// Resolves custom command prefixes for different Discord guilds.
     /// Implements DSharpPlus's IPrefixResolver interface to provide guild-specific command prefixes.
     /// </summary>
-    public class CustomPrefixResolver : IPrefixResolver
+    /// <remarks>
+    /// Initializes a new instance of the CustomPrefixResolver.
+    /// </remarks>
+    /// <param name="guildSettingsService">Service for accessing guild-specific settings</param>
+    public class CustomPrefixResolver(IGuildSettingService guildSettingsService) : IPrefixResolver
     {
-        private readonly IGuildSettingService _guildSettingsService;
-
-        /// <summary>
-        /// Initializes a new instance of the CustomPrefixResolver.
-        /// </summary>
-        /// <param name="guildSettingsService">Service for accessing guild-specific settings</param>
-        public CustomPrefixResolver(IGuildSettingService guildSettingsService)
-        {
-            _guildSettingsService = guildSettingsService;
-        }
+        private readonly IGuildSettingService _guildSettingsService = guildSettingsService;
 
         /// <summary>
         /// Resolves the command prefix for a given message.

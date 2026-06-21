@@ -10,19 +10,13 @@ using SixLabors.ImageSharp.Formats.Webp;
 
 namespace Zealot.Shared.Services
 {
-    public class ModerationLogService : IModerationLogService
+    public class ModerationLogService(DiscordClient client, BotDbContext dbContext, IGuildSettingService guildSettingService) : IModerationLogService
     {
-        private readonly DiscordClient _client;
-        private readonly BotDbContext _dbContext;
-        private readonly IGuildSettingService _guildSettingService;
+        private readonly DiscordClient _client = client;
+        private readonly BotDbContext _dbContext = dbContext;
+        private readonly IGuildSettingService _guildSettingService = guildSettingService;
 
-        public ModerationLogService(DiscordClient client, BotDbContext dbContext, IGuildSettingService guildSettingService)
-        {
-            _client = client;
-            _dbContext = dbContext;
-            _guildSettingService = guildSettingService;
-        }
-
+        #region LogModeratorActionAsync
         // Task responsible for handling the insertion of log items into the database
         public async Task LogModeratorActionAsync(
             ulong guildId,
@@ -78,8 +72,9 @@ namespace Zealot.Shared.Services
                 await SendEmbedToLogsChannel(guildId, embed);
             }
         }
+        #endregion
 
-        #region Get Moderator Logs
+        #region GetModeratorLogsAsync
         // Get a paginated list of the logs
         public async Task<IEnumerable<ModeratorLogsDTO>> GetModeratorLogsAsync(
             ulong? guildId = null,
@@ -134,7 +129,9 @@ namespace Zealot.Shared.Services
                 })
                 .ToListAsync();
         }
+        #endregion
 
+        #region GetModerationLogByCaseNumberAsync
         // Get a log based on the case number
         public async Task<ModeratorLogs?> GetModerationLogByCaseNumberAsync(ulong guildId, int caseNumber)
         {
@@ -146,6 +143,7 @@ namespace Zealot.Shared.Services
         }
         #endregion
 
+        #region IsValidAttachment
         // A Task to check if the attachment is a valid image or is less then 512kB
         public Task<DiscordInteractionResponseBuilder?> IsValidAttachment(DiscordAttachment attachment)
         {
@@ -178,7 +176,9 @@ namespace Zealot.Shared.Services
             // Return null if it is a valid attachement
             return Task.FromResult<DiscordInteractionResponseBuilder?>(null);
         }
+        #endregion
 
+        #region SendEmbedToLogsChannel
         // Sends a Discord embed message to the configured moderation log channel for a guild.
         public async Task SendEmbedToLogsChannel(ulong guildId, DiscordEmbed embed)
         {
@@ -197,7 +197,9 @@ namespace Zealot.Shared.Services
             // Send the embed to the Moderation Logging Channel
             await channel.SendMessageAsync(embed);
         }
+        #endregion
 
+        #region ConvertAttachmentToByteAsync
         // Helper Function to turn an image into bytes
         public async Task<byte[]?> ConvertAttachmentToByteAsync(DiscordAttachment attachment)
         {
@@ -226,6 +228,6 @@ namespace Zealot.Shared.Services
                 return null;
             }
         }
-
+        #endregion
     }
 }
