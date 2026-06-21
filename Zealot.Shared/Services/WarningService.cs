@@ -10,8 +10,6 @@ namespace Zealot.Shared.Services
     // Consider finding shorter Task names.
     public class WarningService(BotDbContext dbContext) : IWarningService
     {
-        private readonly BotDbContext _dbContext = dbContext;
-
         #region AddWarningAsync
         // This method adds a warning to the database for a specific user in a guild. 
         public async Task AddWarningAsync(ulong guildId, ulong userId, ulong moderatorId, string? reason = null)
@@ -29,14 +27,14 @@ namespace Zealot.Shared.Services
                 Reason = reason
             };
 
-            int nextId = (await _dbContext.WarningData
+            int nextId = (await dbContext.WarningData
                 .Where(x => x.GuildId == guildId)
                 .MaxAsync(x => (int?)x.WarningId) ?? 0) + 1;
 
             warning.WarningId = nextId;
 
-            await _dbContext.WarningData.AddAsync(warning);
-            await _dbContext.SaveChangesAsync();
+            await dbContext.WarningData.AddAsync(warning);
+            await dbContext.SaveChangesAsync();
         }
         #endregion
 
@@ -44,7 +42,7 @@ namespace Zealot.Shared.Services
         // This Method retrieves all warnings for a guild.
         public async Task<IEnumerable<WarningData>> GetWarningsForGuildAsync(ulong guildId)
         {
-            return await _dbContext.WarningData.Where(w => w.GuildId == guildId).ToListAsync();
+            return await dbContext.WarningData.Where(w => w.GuildId == guildId).ToListAsync();
         }
         #endregion
 
@@ -52,7 +50,7 @@ namespace Zealot.Shared.Services
         // This Method retrieves a paginated list of warnings for a guild.
         public async Task<IEnumerable<WarningData>> GetPaginatedWarningsForGuildAsync(ulong guildId, int page = 1, int pageSize = 20)
         {
-            return await _dbContext.WarningData
+            return await dbContext.WarningData
                 .Where(w => w.GuildId == guildId)
                 .OrderByDescending(w => w.CreatedAt)
                 .Skip((page - 1) * pageSize)
@@ -65,7 +63,7 @@ namespace Zealot.Shared.Services
         // This method retrieves all warnings for a specific user in a guild.
         public async Task<IEnumerable<WarningData>> GetWarningsForUserAsync(ulong guildId, ulong userId)
         {
-            return await _dbContext.WarningData.Where(w => w.GuildId == guildId && w.UserId == userId).ToListAsync();
+            return await dbContext.WarningData.Where(w => w.GuildId == guildId && w.UserId == userId).ToListAsync();
         }
         #endregion
 
@@ -73,7 +71,7 @@ namespace Zealot.Shared.Services
         // This method retrieves a paginated list of warnings for a specific user in a guild.
         public async Task<IEnumerable<WarningData>> GetPaginatedWarningsForUserAsync(ulong guildId, ulong userId, int page = 1, int pageSize = 20)
         {
-            return await _dbContext.WarningData
+            return await dbContext.WarningData
                 .Where(w => w.GuildId == guildId && w.UserId == userId)
                 .OrderByDescending(w => w.CreatedAt)
                 .Skip((page - 1) * pageSize)
@@ -86,7 +84,7 @@ namespace Zealot.Shared.Services
         // This method retrieves a specific warning by its ID for a user in a guild.
         public async Task<WarningData?> GetWarningByIdAsync(ulong guildId, int warningId)
         {
-            return await _dbContext.WarningData.Where(w => w.GuildId == guildId && w.WarningId == warningId).FirstOrDefaultAsync();
+            return await dbContext.WarningData.Where(w => w.GuildId == guildId && w.WarningId == warningId).FirstOrDefaultAsync();
         }
         #endregion
 
@@ -94,7 +92,7 @@ namespace Zealot.Shared.Services
         // This method retrieves the total count of warnings for a specific user in a guild.
         public async Task<int> GetWarningCountAsync(ulong guildId, ulong userId)
         {
-            return await _dbContext.WarningData
+            return await dbContext.WarningData
                 .CountAsync(w => w.GuildId == guildId && w.UserId == userId);
         }
         #endregion
@@ -103,9 +101,9 @@ namespace Zealot.Shared.Services
         // This method clears all warnings for a specific user in a guild.
         public async Task ClearWarningsForUserAsync(ulong guildId, ulong userId)
         {
-            var warnings = await _dbContext.WarningData.Where(w => w.GuildId == guildId && w.UserId == userId).ToListAsync();
-            _dbContext.WarningData.RemoveRange(warnings);
-            await _dbContext.SaveChangesAsync();
+            var warnings = await dbContext.WarningData.Where(w => w.GuildId == guildId && w.UserId == userId).ToListAsync();
+            dbContext.WarningData.RemoveRange(warnings);
+            await dbContext.SaveChangesAsync();
         }
         #endregion
 
@@ -113,11 +111,11 @@ namespace Zealot.Shared.Services
         // This method clears a specific warning by its ID.
         public async Task ClearWarningByIdAsync(ulong guildId, int warningId)
         {
-            var warning = await _dbContext.WarningData.Where(w => w.GuildId == guildId && w.WarningId == warningId).FirstOrDefaultAsync();
+            var warning = await dbContext.WarningData.Where(w => w.GuildId == guildId && w.WarningId == warningId).FirstOrDefaultAsync();
             if (warning != null)
             {
-                _dbContext.WarningData.Remove(warning);
-                await _dbContext.SaveChangesAsync();
+                dbContext.WarningData.Remove(warning);
+                await dbContext.SaveChangesAsync();
             }
         }
         #endregion

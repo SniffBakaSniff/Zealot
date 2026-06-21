@@ -16,8 +16,6 @@ namespace Zealot.Shared.Services
     /// <param name="guildSettingsService">Service for accessing guild-specific settings</param>
     public class CustomPrefixResolver(IGuildSettingService guildSettingsService) : IPrefixResolver
     {
-        private readonly IGuildSettingService _guildSettingsService = guildSettingsService;
-
         /// <summary>
         /// Resolves the command prefix for a given message.
         /// Returns the length of the prefix if found, or -1 if no valid prefix is present.
@@ -38,7 +36,7 @@ namespace Zealot.Shared.Services
             if (message.Channel.GuildId.HasValue)
             {
                 var guildId = message.Channel.GuildId.Value;
-                var prefix = await _guildSettingsService.GetGuildPrefixAsync(guildId);
+                var prefix = await guildSettingsService.GetGuildPrefixAsync(guildId);
                 if (message.Content.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     return prefix.Length;

@@ -6,17 +6,16 @@ using Zealot.Shared.Database;
 
 namespace Zealot.Shared.Services
 {
-    public class GuildSettingService(BotDbContext botDbContext) : IGuildSettingService
+    public class GuildSettingService(BotDbContext dbContext) : IGuildSettingService
     {
         // Define the Database Context
-        private readonly BotDbContext _dbContext = botDbContext;
 
         #region GetGuildPrefixAsync
         // Task to get the guilds prefix from the database
         public async Task<string> GetGuildPrefixAsync(ulong guildId)
         {
             // Get the GuildSettings table for the guild
-            var settings = await _dbContext.GuildSettings
+            var settings = await dbContext.GuildSettings
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
@@ -30,7 +29,7 @@ namespace Zealot.Shared.Services
         public async Task SetGuildPrefixAsync(ulong guildId, string prefix)
         {
             // Try to get the current settings for the guild
-            var settings = await _dbContext.GuildSettings
+            var settings = await dbContext.GuildSettings
                 .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
             if (settings == null)
@@ -42,25 +41,25 @@ namespace Zealot.Shared.Services
                     Prefix = prefix
                 };
 
-                await _dbContext.GuildSettings.AddAsync(settings);
+                await dbContext.GuildSettings.AddAsync(settings);
             }
             else
             {
                 // Update the existing prefix
                 settings.Prefix = prefix;
 
-                _dbContext.GuildSettings.Update(settings);
+                dbContext.GuildSettings.Update(settings);
             }
 
             // Save the changes
-            await _dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
         }
         #endregion
 
         #region GetModerationLogChannelAsync
         public async Task<ulong?> GetModerationLogChannelAsync(ulong guildId)
         {
-            var settings = await _dbContext.GuildSettings
+            var settings = await dbContext.GuildSettings
                 .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
             return settings?.ModerationLogChannel;
@@ -72,7 +71,7 @@ namespace Zealot.Shared.Services
         public async Task SetModerationLogChannelAsync(ulong guildId, ulong channelId)
         {
             // Try to get the current settings for the guild
-            var settings = await _dbContext.GuildSettings
+            var settings = await dbContext.GuildSettings
                 .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
             if (settings == null)
@@ -84,18 +83,18 @@ namespace Zealot.Shared.Services
                     ModerationLogChannel = channelId
                 };
 
-                await _dbContext.GuildSettings.AddAsync(settings);
+                await dbContext.GuildSettings.AddAsync(settings);
             }
             else
             {
                 // Update the existing ModerationLoggingChannel
                 settings.ModerationLogChannel = channelId;
 
-                _dbContext.GuildSettings.Update(settings);
+                dbContext.GuildSettings.Update(settings);
             }
 
             // Save the changes to the database
-            await _dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
         }
         #endregion
 
@@ -104,7 +103,7 @@ namespace Zealot.Shared.Services
         public async Task SetMutedRoleIdAsync(ulong guildId, ulong roleId)
         {
             // Try to get the current settings for the guild
-            var settings = await _dbContext.GuildSettings
+            var settings = await dbContext.GuildSettings
                 .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
             if (settings == null)
@@ -116,18 +115,18 @@ namespace Zealot.Shared.Services
                     MutedRoleId = roleId
                 };
 
-                await _dbContext.GuildSettings.AddAsync(settings);
+                await dbContext.GuildSettings.AddAsync(settings);
             }
             else
             {
                 // Update the existing MutedRoleId
                 settings.MutedRoleId = roleId;
 
-                _dbContext.GuildSettings.Update(settings);
+                dbContext.GuildSettings.Update(settings);
             }
 
             // Save the changes to the database
-            await _dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
         }
         #endregion
 
@@ -135,7 +134,7 @@ namespace Zealot.Shared.Services
         // Task to to get the MutedRoleId from the database
         public async Task<ulong?> GetMutedRoleIdAsync(ulong guildId)
         {
-            var settings = await _dbContext.GuildSettings
+            var settings = await dbContext.GuildSettings
                 .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
             return settings?.MutedRoleId;

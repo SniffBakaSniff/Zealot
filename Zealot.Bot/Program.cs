@@ -165,19 +165,9 @@ namespace Zealot.Bot
         {
             builder.ConfigureEventHandlers(events =>
             {
-                static T GetService<T>(DiscordClient client) where T : notnull
-                {
-                    return client.ServiceProvider!.GetRequiredService<T>();
-                }
-
-                events.HandleGuildCreated(async (client, args) =>
-                    await GuildCreatedEvent.GuildCreatedHandler(client, args, GetService<IGuildDataService>(client)));
-
-                events.HandleGuildDeleted(async (client, args) =>
-                    await GuildDeletedEvent.GuildDeletedHandler(client, args, GetService<IGuildDataService>(client)));
-
-                events.HandleGuildDownloadCompleted(async (client, args) => 
-                    await GuildDownloadCompletedEvent.GuildDownloadCompletedHandler(client, args, GetService<IGuildDataService>(client)));
+                events.AddEventHandlers<GuildCreatedEvent>(ServiceLifetime.Scoped);
+                events.AddEventHandlers<GuildDeletedEvent>(ServiceLifetime.Scoped);
+                events.AddEventHandlers<GuildDownloadCompletedEvent>(ServiceLifetime.Scoped);
             });
         }
         #endregion

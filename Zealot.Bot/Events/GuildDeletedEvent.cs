@@ -4,12 +4,9 @@ using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Events
 {
-    public class GuildDeletedEvent(IGuildDataService guildDataService)
+    public class GuildDeletedEvent(IGuildDataService guildDataService) : IEventHandler<GuildDeletedEventArgs>
     {
-        private readonly IGuildDataService _guildDataService = guildDataService;
-
-        // Handles the deletion of guild information in the database upon the triggering of the GuildDeletedEvent.
-        public static async Task GuildDeletedHandler(DiscordClient client, GuildDeletedEventArgs e, IGuildDataService guildDataService)
+        public async Task HandleEventAsync(DiscordClient sender, GuildDeletedEventArgs e)
         {
             await guildDataService.RemoveClientGuildAsync(e.Guild.Id);
         }

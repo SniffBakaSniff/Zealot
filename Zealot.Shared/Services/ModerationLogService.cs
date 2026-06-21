@@ -12,10 +12,6 @@ namespace Zealot.Shared.Services
 {
     public class ModerationLogService(DiscordClient client, BotDbContext dbContext, IGuildSettingService guildSettingService) : IModerationLogService
     {
-        private readonly DiscordClient _client = client;
-        private readonly BotDbContext _dbContext = dbContext;
-        private readonly IGuildSettingService _guildSettingService = guildSettingService;
-
         #region LogModeratorActionAsync
         // Task responsible for handling the insertion of log items into the database
         public async Task LogModeratorActionAsync(
@@ -53,7 +49,7 @@ namespace Zealot.Shared.Services
             };
 
             // Get the lase CaseNumber 
-            var lastCase = await _dbContext.ModeratorLogs
+            var lastCase = await dbContext.ModeratorLogs
                 .Where(l => l.GuildId == log.GuildId)
                 .OrderByDescending(l => l.CaseNumber)
                 .Select(l => l.CaseNumber)
@@ -63,8 +59,8 @@ namespace Zealot.Shared.Services
             log.CaseNumber = lastCase + 1;
 
             // Add the log to the database and save
-            _dbContext.ModeratorLogs.Add(log);
-            await _dbContext.SaveChangesAsync();
+            dbContext.ModeratorLogs.Add(log);
+            await dbContext.SaveChangesAsync();
 
             // Send the embed to the logging channel if the embed is not null
             if (embed is not null)
@@ -87,7 +83,7 @@ namespace Zealot.Shared.Services
             int page = 1,
             int pageSize = 10)
         {
-            var query = _dbContext.ModeratorLogs.AsQueryable();
+            var query = dbContext.ModeratorLogs.AsQueryable();
 
             // Filter the query
             if (guildId.HasValue)
@@ -135,7 +131,7 @@ namespace Zealot.Shared.Services
         // Get a log based on the case number
         public async Task<ModeratorLogs?> GetModerationLogByCaseNumberAsync(ulong guildId, int caseNumber)
         {
-            var log = await _dbContext.ModeratorLogs
+            var log = await dbContext.ModeratorLogs
                 .Where(log => log.GuildId == guildId && log.CaseNumber == caseNumber)
                 .FirstOrDefaultAsync();
 
@@ -183,7 +179,7 @@ namespace Zealot.Shared.Services
         public async Task SendEmbedToLogsChannel(ulong guildId, DiscordEmbed embed)
         {
             // Get the moderation logging channel
-            ulong? channelId = await _guildSettingService.GetModerationLogChannelAsync(guildId);
+            ulong? channelId = await guildSettingService.GetModerationLogChannelAsync(guildId);
 
             // Perform a null check to make sure that the channel id exists
             if (channelId is null)
@@ -192,7 +188,7 @@ namespace Zealot.Shared.Services
             }
 
             // Get the discord channel
-            var channel = await _client.GetChannelAsync(channelId.Value);
+            var channel = await client.GetChannelAsync(channelId.Value);
 
             // Send the embed to the Moderation Logging Channel
             await channel.SendMessageAsync(embed);

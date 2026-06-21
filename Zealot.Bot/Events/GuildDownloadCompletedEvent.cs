@@ -5,11 +5,9 @@ using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Events
 {
-    public class GuildDownloadCompletedEvent(IGuildDataService guildDataService)
+    public class GuildDownloadCompletedEvent(IGuildDataService guildDataService) : IEventHandler<GuildDownloadCompletedEventArgs>
     {
-        private readonly IGuildDataService _guildDataService = guildDataService;
-
-        public static async Task GuildDownloadCompletedHandler(DiscordClient client, GuildDownloadCompletedEventArgs e, IGuildDataService guildDataService)
+        public async Task HandleEventAsync(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             try
             {

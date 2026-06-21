@@ -11,8 +11,6 @@ namespace Zealot.Shared.Services
 {
     public class GuildDataService(BotDbContext dbContext) : IGuildDataService
     {
-        private readonly BotDbContext _dbContext = dbContext;
-
         #region AddClientGuilds
         // Adds the guild information to the database
         public async Task AddClientGuildsAsync(DiscordGuild guild)
@@ -20,7 +18,7 @@ namespace Zealot.Shared.Services
             try
             {
                 Log.Information("Adding Guild `{GuildName}` to database.", guild.Name);
-                var guildData = await _dbContext.GuildsData.FindAsync(guild.Id);
+                var guildData = await dbContext.GuildsData.FindAsync(guild.Id);
 
                 if (guildData is null)
                 {
@@ -36,8 +34,8 @@ namespace Zealot.Shared.Services
                     };
                     Log.Debug("Guild Data: {@guildData}", guildData);
 
-                    await _dbContext.GuildsData.AddAsync(guildData);
-                    await _dbContext.SaveChangesAsync();
+                    await dbContext.GuildsData.AddAsync(guildData);
+                    await dbContext.SaveChangesAsync();
                     return;
                 }
 
@@ -48,7 +46,7 @@ namespace Zealot.Shared.Services
                 guildData.CreatedAt = guild.CreationTimestamp.UtcDateTime;
                 guildData.Timestamp = DateTime.UtcNow;
                 Log.Debug("Guild Data: {@guildData}", guildData);
-                await _dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
             }
             catch(Exception ex)
             {
@@ -60,12 +58,12 @@ namespace Zealot.Shared.Services
         // Removes the guild information from the database
         public async Task RemoveClientGuildAsync(ulong guildId)
         {
-            var existingGuild = await _dbContext.GuildsData.FindAsync(guildId);
+            var existingGuild = await dbContext.GuildsData.FindAsync(guildId);
 
             if (existingGuild is not null)
             {
-                _dbContext.GuildsData.Remove(existingGuild);
-                await _dbContext.SaveChangesAsync();
+                dbContext.GuildsData.Remove(existingGuild);
+                await dbContext.SaveChangesAsync();
             }
         }
         #endregion
@@ -73,14 +71,14 @@ namespace Zealot.Shared.Services
         // Gets all guilds from the database
         public async Task<List<GuildsData>> GetAllGuildsAsync()
         {
-            return await _dbContext.GuildsData.ToListAsync();
+            return await dbContext.GuildsData.ToListAsync();
         }
         #endregion
         #region GetGuildByIdAsync
         // Gets a specific guild by its ID
         public async Task<GuildsData?> GetGuildByIdAsync(ulong guildId)
         {
-            return await _dbContext.GuildsData.FindAsync(guildId);
+            return await dbContext.GuildsData.FindAsync(guildId);
         }
         #endregion
         #region GetGuildsByIdsAsync
@@ -88,7 +86,7 @@ namespace Zealot.Shared.Services
         // Comapares the ID's of the users guilds and the bots guilds and returns the matching guilds from the database
         public async Task<List<GuildsData>> GetGuildsByIdsAsync(IEnumerable<ulong> guildIds)
         {
-            return await _dbContext.GuildsData.Where(g => guildIds.Contains(g.GuildId)).ToListAsync();
+            return await dbContext.GuildsData.Where(g => guildIds.Contains(g.GuildId)).ToListAsync();
         }
         #endregion
     }
