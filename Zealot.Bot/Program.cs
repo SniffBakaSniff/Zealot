@@ -163,6 +163,12 @@ namespace Zealot.Bot
                     var guildDataService = client.ServiceProvider!.GetRequiredService<IGuildDataService>();
                     await GuildDeletedEvent.GuildDeletedHandler(client, args, guildDataService);
                 });
+
+                events.HandleGuildDownloadCompleted(async (client, args) =>
+                {
+                   var guildDataService = client.ServiceProvider!.GetRequiredService<IGuildDataService>();
+                   await GuildDownloadCompletedEvent.GuildDownloadCompletedHandler(client, args, guildDataService);
+                });
             });
         }
 
@@ -194,12 +200,6 @@ namespace Zealot.Bot
             await Task.Delay(1000);
       
             var services = client.ServiceProvider!;
-
-            await foreach (var guild in client.GetGuildsAsync())
-            {
-                await services.GetRequiredService<IGuildDataService>().AddClientGuilds(guild);
-            }
-
             var scheduler = services.GetRequiredService<ITaskSchedulerService>();
             _ = scheduler.StartAsync(cts.Token);
             _ = StartStatusCycleAsync(client);
