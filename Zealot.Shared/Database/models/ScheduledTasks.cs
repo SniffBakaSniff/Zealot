@@ -1,3 +1,5 @@
+using Zealot.Shared.Enums;
+namespace Zealot.Shared.Database.Models;
 public class ScheduledTasks
 {
     public int Id { get; set; }
