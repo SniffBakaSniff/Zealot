@@ -79,5 +79,13 @@ namespace Zealot.Shared.Services.Interfaces
         /// <param name="warningId">The ID of the warning to clear.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task ClearWarningByIdAsync(ulong guildId, int warningId);
+
+        /// <summary>
+        /// Handles warning escalation .
+        /// </summary>
+        /// <param name="guildId">The ID of the guild for which to handle warning escalation .</param>
+        /// <param name="userId">The ID of the user for whom to handle warning escalation .</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task WarningescalationAsync(ulong guildId, ulong userId);
     }
 }

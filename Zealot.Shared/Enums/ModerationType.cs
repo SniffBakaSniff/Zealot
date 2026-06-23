@@ -24,6 +24,8 @@ namespace Zealot.Shared.Enums
         [ChoiceDisplayName("Warn")]
         warn,
         [ChoiceDisplayName("Remove Warning")]
-        removeWarning
+        removeWarning,
+        [ChoiceDisplayName("Timeout")]
+        timeout
     }
 }

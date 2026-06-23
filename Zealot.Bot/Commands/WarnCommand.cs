@@ -2,8 +2,6 @@ using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Zealot.Shared.Database.Models;
 using Zealot.Shared.Enums;
 
 namespace Zealot.Bot.Commands
@@ -13,7 +11,7 @@ namespace Zealot.Bot.Commands
         [Command("warn")]
         [Description("Issues a warning to a user.")]
         [RequirePermissions(DiscordPermission.ModerateMembers)]
-        public async Task warn(CommandContext ctx,
+        public async Task Warn(CommandContext ctx,
             [Description("The user to warn.")] DiscordMember user,
             [Description("The reason for the warning.")] string? reason = null,
             [Description("Send the response as ephemeral?")] bool ephemeral = false)
@@ -96,6 +94,9 @@ namespace Zealot.Bot.Commands
                 ModerationType.warn.ToString(),
                 reason,
                 embed: embed);
+
+            // Check for warning escalation
+            await _warningService.WarningescalationAsync(ctx.Guild.Id, user.Id);
         }
     }
 }

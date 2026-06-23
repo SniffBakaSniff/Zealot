@@ -3,12 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Zealot.Shared.Services.Interfaces;
 using Zealot.Shared.Database.Models;
 using Zealot.Shared.Database;
+using System.Security.Cryptography.X509Certificates;
+using Zealot.Shared.Enums;
+using DSharpPlus;
+using DSharpPlus.Entities;
 
 namespace Zealot.Shared.Services
 {
 
     // Consider finding shorter Task names.
-    public class WarningService(BotDbContext dbContext) : IWarningService
+    public class WarningService(BotDbContext dbContext, DiscordClient client, ModerationLogService moderationLogService, TaskSchedulerService taskSchedulerService) : IWarningService
     {
         #region AddWarningAsync
         // This method adds a warning to the database for a specific user in a guild. 
@@ -119,5 +123,114 @@ namespace Zealot.Shared.Services
             }
         }
         #endregion
+
+        #region Warningescalation Async
+        // Might move this to a ModeratorActionService or something.
+        // This meathod will handle warning escalation .
+        public async Task WarningescalationAsync(ulong guildId, ulong userId)
+        {
+            DiscordGuild guild = await client.GetGuildAsync(guildId);
+            DiscordMember user = await guild.GetMemberAsync(userId);
+            DiscordUser? moderator = client.CurrentApplication.Bot;
+            int warningCount = await GetWarningCountAsync(guildId, userId);
+            var escalationRule = await dbContext.WarningEscalationRules
+                                .Where(w => w.GuildId == guildId && w.WarningCount <= warningCount)
+                                .OrderByDescending(x => x.WarningCount)
+                                .FirstOrDefaultAsync();
+            string reason = $"Automatic escalation: {warningCount} warnings";
+            
+            if (escalationRule is null)
+            {
+                return;
+            }
+
+            // Build the emebed for the user message and logging channel.
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle($"Automatic escalation. {escalationRule.Punishment}")
+                .AddField("User:", $"{user.Mention}")
+                .AddField("User ID:", $"```{user.Id}```")
+                .AddField("Moderator:", moderator!.Mention)
+                .AddField("Reason:", $"```{reason}```")
+                .WithThumbnail(user.AvatarUrl)
+                .WithFooter($"{moderator.GlobalName}", moderator.AvatarUrl)
+                .WithTimestamp(DateTime.UtcNow)
+                .WithColor(DiscordColor.Gray);
+
+            int? duration = escalationRule.DurationHours;
+            if (escalationRule.DurationHours.HasValue)
+            {
+                embed.AddField("Duration:", $"```{duration} hours. ({duration/24} days)```");
+            };
+
+            // Send DM to user regarding the escalation .
+            await user.SendMessageAsync(embed);
+
+            // Switch for handling escalation  types.
+            switch (escalationRule.Punishment)
+            {
+                case WarningEscalationType.ban:
+                {
+                    await guild.BanMemberAsync(userId, reason: reason);
+                    if (duration.HasValue)
+                    {
+                        DateTime date = DateTime.UtcNow.AddHours(duration.Value);
+                        await taskSchedulerService.AddTaskAsync(TaskType.UnBan, guildId, userId, date);
+                    }
+                    await moderationLogService.LogModeratorActionAsync(
+                            guildId,
+                            userId,
+                            client.CurrentApplication.Id,
+                            ModerationType.ban.ToString(),
+                            reason,
+                            image: null,
+                            embed: embed);
+                    break;
+                }
+
+                case WarningEscalationType.kick:
+                {
+                    await guild.RemoveMemberAsync(userId, reason: reason);
+                    await moderationLogService.LogModeratorActionAsync(
+                            guildId,
+                            userId,
+                            client.CurrentApplication.Id,
+                            ModerationType.kick.ToString(),
+                            reason,
+                            image: null,
+                            embed: embed);
+                    break;
+                }
+
+                case WarningEscalationType.Mute:
+                {
+                    ulong? mutedRoleId = await dbContext.GuildSettings.Where(w => w.GuildId == guildId).Select(s => s.MutedRoleId).FirstOrDefaultAsync(); 
+                    if (mutedRoleId is null)
+                    {
+                        break;
+                    }
+                    await user.GrantRoleAsync(await guild.GetRoleAsync(mutedRoleId.Value));
+                    if (duration.HasValue)
+                    {
+                        DateTime date = DateTime.UtcNow.AddHours(duration.Value);
+                        await taskSchedulerService.AddTaskAsync(TaskType.UnMute, guildId, userId, date);
+                    }
+                    await moderationLogService.LogModeratorActionAsync(
+                            guildId,
+                            userId,
+                            client.CurrentApplication.Id,
+                            ModerationType.mute.ToString(),
+                            reason,
+                            image: null,
+                            embed: embed);
+                    break;
+                }
+
+                default:
+                {
+                    break;
+                }
+            }
+        }
+        #endregion 
     }
 }

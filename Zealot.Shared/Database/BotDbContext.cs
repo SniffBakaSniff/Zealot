@@ -15,6 +15,7 @@ namespace Zealot.Shared.Database
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
         public DbSet<ScheduledTasks> ScheduledTasks { get; set; }
         public DbSet<GuildsData> GuildsData { get; set; }
+        public DbSet<WarningEscalationRule> WarningEscalationRules { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
