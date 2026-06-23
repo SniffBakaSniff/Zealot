@@ -4,6 +4,7 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Zealot.Shared.Database.Models;
+using Zealot.Shared.Enums;
 
 namespace Zealot.Bot.Commands
 {

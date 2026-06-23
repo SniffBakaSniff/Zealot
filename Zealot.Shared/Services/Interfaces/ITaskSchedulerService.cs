@@ -1,3 +1,5 @@
+using Zealot.Shared.Enums;
+
 public interface ITaskSchedulerService
 {
     /// <summary>

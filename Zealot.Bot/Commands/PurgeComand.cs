@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
+using Zealot.Shared.Enums;
 
 namespace Zealot.Bot.Commands
 {

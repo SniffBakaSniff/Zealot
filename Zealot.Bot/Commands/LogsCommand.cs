@@ -2,6 +2,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using System.ComponentModel;
+using Zealot.Shared.Enums;
 
 namespace Zealot.Bot.Commands
 {

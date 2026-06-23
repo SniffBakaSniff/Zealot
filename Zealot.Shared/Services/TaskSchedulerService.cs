@@ -2,6 +2,7 @@ using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Zealot.Shared.Database;
+using Zealot.Shared.Enums;
 using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Shared.Services

@@ -1,6 +1,9 @@
-public enum TaskType
+namespace Zealot.Shared.Enums
 {
-    UnBan,
-    UnMute,
+    public enum TaskType
+    {
+        UnBan,
+        UnMute,
 
+    }
 }
