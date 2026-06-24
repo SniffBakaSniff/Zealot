@@ -205,54 +205,8 @@ namespace Zealot.Bot
             var services = client.ServiceProvider!;
             var scheduler = services.GetRequiredService<ITaskSchedulerService>();
             _ = scheduler.StartAsync(cts.Token);
-            _ = StartStatusCycleAsync(client);
             Log.Information("Zealot is now running.");
             await Task.Delay(-1, cts.Token);
-        }
-        #endregion
-
-        #region StatusCycling
-        private static async Task StartStatusCycleAsync(DiscordClient client)
-        {
-            Log.Information("Status Cycling Initializing");
-            var statuses = new[]
-            {
-                new DiscordActivity("Interpreting divine pings...", DiscordActivityType.Custom),
-                new DiscordActivity("Wandering the debug desert", DiscordActivityType.Custom),
-                new DiscordActivity("Smite first. Ask later.", DiscordActivityType.Custom),
-                new DiscordActivity("Reading the Book of /help", DiscordActivityType.Custom),
-                new DiscordActivity("Blessed by bugs 🐛", DiscordActivityType.Custom),
-                new DiscordActivity("Zealot", DiscordActivityType.Custom),
-                new DiscordActivity("Praying to the stack trace gods 🙏", DiscordActivityType.Custom),
-                new DiscordActivity("Sacrificing RAM for wisdom", DiscordActivityType.Custom),
-                new DiscordActivity("Logging sins", DiscordActivityType.Custom),
-                new DiscordActivity("Judging your uptime ⏳", DiscordActivityType.Custom),
-                new DiscordActivity("Performing miracles... slowly", DiscordActivityType.Custom),
-                new DiscordActivity("Baptizing noobs", DiscordActivityType.Custom),
-                new DiscordActivity("Excommunicating null references", DiscordActivityType.Custom),
-                new DiscordActivity("Executing the sacred loop", DiscordActivityType.Custom),
-                new DiscordActivity("Clerical errors: 0", DiscordActivityType.Custom),
-                new DiscordActivity("Fasting... from updates", DiscordActivityType.Custom),
-                new DiscordActivity("Communing with the API spirits", DiscordActivityType.Custom),
-                new DiscordActivity("Channeling divine exception handling", DiscordActivityType.Custom),
-                new DiscordActivity("Chanting async prayers", DiscordActivityType.Custom),
-                new DiscordActivity("Summoning packets", DiscordActivityType.Custom),
-                new DiscordActivity("Bearing witness to your logs", DiscordActivityType.Custom),
-                new DiscordActivity("Awaiting prophecy via WebSocket", DiscordActivityType.Custom),
-            };
-
-            var rng = new Random();
-
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    var status = statuses[rng.Next(statuses.Length)];
-                    await client.UpdateStatusAsync(status, DiscordUserStatus.Online);
-                    await Task.Delay(TimeSpan.FromMinutes(10));
-                }
-            });
-            Log.Information("Status Cycleing Initalized");
         }
         #endregion
 
