@@ -81,7 +81,25 @@ namespace Zealot.Shared.Services.Interfaces
         Task ClearWarningByIdAsync(ulong guildId, int warningId);
 
         /// <summary>
-        /// Handles warning escalation .
+        /// Adds a warning escalation rule for a guild.
+        /// </summary>
+        /// <param name="escalationRule"> The warning escalation rule to add.</param>
+        /// <exception cref="DuplicateWarningEscalationRuleException">
+        /// Thrown when a rule already exists for the specified warning count.
+        /// </exception>
+        Task AddWarningEscalationRuleAsync(WarningEscalationRule escalationRule);
+
+        /// <summary>
+        /// Gets all warning escalation rules for a specific guild.
+        /// </summary>
+        /// <param name="guildId">The ID of the guild whose warning escalation rules will be retrieved.</param>
+        /// <returns>
+        /// A list of <see cref="WarningEscalationRule"/> entries for the specified guild.
+        /// </returns>
+        Task<List<WarningEscalationRule>> GetWarningEscalationRulesAsync(ulong guildId);
+
+        /// <summary>
+        /// Handles warning escalation.
         /// </summary>
         /// <param name="guildId">The ID of the guild for which to handle warning escalation .</param>
         /// <param name="userId">The ID of the user for whom to handle warning escalation .</param>

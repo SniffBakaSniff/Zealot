@@ -1,4 +1,3 @@
-
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 namespace Zealot.Shared.Enums
 {

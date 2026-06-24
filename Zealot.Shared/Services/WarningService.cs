@@ -7,12 +7,14 @@ using System.Security.Cryptography.X509Certificates;
 using Zealot.Shared.Enums;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using System.Reflection;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Zealot.Shared.Services
 {
 
     // Consider finding shorter Task names.
-    public class WarningService(BotDbContext dbContext, DiscordClient client, ModerationLogService moderationLogService, TaskSchedulerService taskSchedulerService) : IWarningService
+    public class WarningService(BotDbContext dbContext, DiscordClient client, IModerationLogService moderationLogService, ITaskSchedulerService taskSchedulerService) : IWarningService
     {
         #region AddWarningAsync
         // This method adds a warning to the database for a specific user in a guild. 
@@ -124,6 +126,39 @@ namespace Zealot.Shared.Services
         }
         #endregion
 
+        #region AddWarningEscalationRuleAsync
+        public async Task AddWarningEscalationRuleAsync(WarningEscalationRule escalationRule)
+        {
+            bool exists = await dbContext.WarningEscalationRules.AnyAsync(w =>
+                w.GuildId == escalationRule.GuildId &&
+                w.WarningCount == escalationRule.WarningCount);
+
+            bool capped = await dbContext.WarningEscalationRules.Where(w => w.GuildId == escalationRule.GuildId).CountAsync() >= 3;
+
+            if (capped)
+            {
+                throw new MaximumWarningEscalationRuleException(3);
+            }
+
+            if (exists)
+            {
+                throw new DuplicateWarningEscalationRuleException(escalationRule.WarningCount);
+            }
+
+            await dbContext.WarningEscalationRules.AddAsync(escalationRule);
+            await dbContext.SaveChangesAsync();
+        }
+        #endregion
+
+        #region GetWarningEscalationRulesAync
+        // Returns a list of the WarningEscalationRules
+        public async Task<List<WarningEscalationRule>> GetWarningEscalationRulesAsync(ulong guildId)
+        {
+            // AsNoTracking as its a readonly queary
+            return await dbContext.WarningEscalationRules.Where(w => w.GuildId == guildId).AsNoTracking().ToListAsync();
+        }
+        #endregion
+
         #region Warningescalation Async
         // Might move this to a ModeratorActionService or something.
         // This meathod will handle warning escalation .
@@ -156,10 +191,10 @@ namespace Zealot.Shared.Services
                 .WithTimestamp(DateTime.UtcNow)
                 .WithColor(DiscordColor.Gray);
 
-            int? duration = escalationRule.DurationHours;
-            if (escalationRule.DurationHours.HasValue)
+            Duration duration = escalationRule.DurationHours;
+            if (duration is not Duration.None)
             {
-                embed.AddField("Duration:", $"```{duration} hours. ({duration/24} days)```");
+                embed.AddField("Duration:", $"```{GetDisplayName(duration)} hours.```");
             };
 
             // Send DM to user regarding the escalation .
@@ -171,9 +206,9 @@ namespace Zealot.Shared.Services
                 case WarningEscalationType.ban:
                 {
                     await guild.BanMemberAsync(userId, reason: reason);
-                    if (duration.HasValue)
+                    if (duration is not Duration.None)
                     {
-                        DateTime date = DateTime.UtcNow.AddHours(duration.Value);
+                        DateTime date = DateTime.UtcNow.AddHours((int)duration);
                         await taskSchedulerService.AddTaskAsync(TaskType.UnBan, guildId, userId, date);
                     }
                     await moderationLogService.LogModeratorActionAsync(
@@ -209,9 +244,9 @@ namespace Zealot.Shared.Services
                         break;
                     }
                     await user.GrantRoleAsync(await guild.GetRoleAsync(mutedRoleId.Value));
-                    if (duration.HasValue)
+                    if (duration is not Duration.None)
                     {
-                        DateTime date = DateTime.UtcNow.AddHours(duration.Value);
+                        DateTime date = DateTime.UtcNow.AddHours((int)duration);
                         await taskSchedulerService.AddTaskAsync(TaskType.UnMute, guildId, userId, date);
                     }
                     await moderationLogService.LogModeratorActionAsync(
@@ -231,6 +266,22 @@ namespace Zealot.Shared.Services
                 }
             }
         }
-        #endregion 
+        #endregion
+
+        #region GetDisplayName
+        // Gets the value of the ChoiceDisplayNameAttribute
+        // Might move this to a seperate service or something later.
+        public static string GetDisplayName(Duration duration)
+        {
+            var member = typeof(Duration)
+                .GetMember(duration.ToString())
+                .FirstOrDefault();
+
+            var attribute = member?
+                .GetCustomAttribute<ChoiceDisplayNameAttribute>();
+
+            return attribute?.DisplayName ?? duration.ToString();
+        }
+        #endregion
     }
 }

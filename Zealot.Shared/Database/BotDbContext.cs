@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using Zealot.Shared.Database.Models;
 
@@ -22,7 +23,6 @@ namespace Zealot.Shared.Database
             // Only configure if no options have been passed in (e.g., by dependency injection)
             if (!optionsBuilder.IsConfigured)
             {
-                // Can use my VPS's database server for this
                 optionsBuilder.UseNpgsql(
                   "Host=localhost;Database=ZealotTest;Username=postgres;Password=Subaka1@;Maximum Pool Size=128;Minimum Pool Size=5;");
             }
@@ -30,7 +30,13 @@ namespace Zealot.Shared.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Add entity configuration here if needed
+            // Prevents the creation of multiple rules using the same warning count
+            modelBuilder.Entity<WarningEscalationRule>().HasIndex(x => new
+            {
+                x.GuildId,
+                x.WarningCount
+            })
+            .IsUnique();
         }
     }
 }

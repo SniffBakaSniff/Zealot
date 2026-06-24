@@ -26,7 +26,7 @@ namespace Zealot.Bot.Commands
                 .WithTitle("🏓 Pong!")
                 .AddField("Latency:", $"{roundedLatency} ms", true)
                 .AddField("Uptime:", $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m", true)
-                .WithColor(DiscordColor.Cyan)
+                .WithColor(DiscordColor.Gray)
                 .WithTimestamp(DateTime.UtcNow);
 
             // Send the embed response, optionally as ephemeral (visible only to the user).
