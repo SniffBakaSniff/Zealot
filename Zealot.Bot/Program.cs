@@ -14,6 +14,7 @@ using Zealot.Bot.Commands;
 using Zealot.Shared.Services.Interfaces;
 using Zealot.Shared.Database;
 using Zealot.Bot.Events;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Zealot.Bot
 {
@@ -122,7 +123,11 @@ namespace Zealot.Bot
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
                 services.AddSingleton<ITaskSchedulerService, TaskSchedulerService>();
                 services.AddScoped<IWarningService, WarningService>();
+                services.AddScoped<IAutoCompleteProvider, WarningsAutoComplete>();
                 services.AddScoped<IGuildDataService, GuildDataService>();
+
+                services.AddSingleton<XmlDocProvider>();
+                services.AddSingleton<DocumentationIndex>();
 
                 services.AddLogging(logging =>
                 {

@@ -1,3 +1,4 @@
+using Zealot.Shared.Services;
 using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
@@ -7,7 +8,8 @@ namespace Zealot.Bot.Commands
         IModerationLogService moderationLogService,
         IGuildSettingService guildSettingService,
         ITaskSchedulerService taskSchedulerService,
-        IWarningService warningService
+        IWarningService warningService,
+        DocumentationIndex documentationIndex
         )
     {
         // handle dependency injection here

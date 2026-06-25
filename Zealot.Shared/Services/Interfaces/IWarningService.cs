@@ -2,6 +2,9 @@ using Zealot.Shared.Database.Models;
 
 namespace Zealot.Shared.Services.Interfaces
 {
+    /// <summary>
+    /// Interface for all WarningService operations.
+    /// </summary>
     public interface IWarningService
     {
         /// <summary>
@@ -97,6 +100,28 @@ namespace Zealot.Shared.Services.Interfaces
         /// A list of <see cref="WarningEscalationRule"/> entries for the specified guild.
         /// </returns>
         Task<List<WarningEscalationRule>> GetWarningEscalationRulesAsync(ulong guildId);
+
+        /// <summary>
+        /// Removes a warning escalation rule.
+        /// </summary>
+        /// <param name="ruleId">
+        /// The unique identifier of the warning escalation rule to remove.
+        /// </param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// </returns>
+        Task ClearWarningEscalationAsync(int ruleId);
+
+        /// <summary>
+        /// Retrieves a warning escalation rule by its unique identifier.
+        /// </summary>
+        /// <param name="ruleId">
+        /// The unique identifier of the warning escalation rule to retrieve.
+        /// </param>
+        /// <returns>
+        /// The warning escalation rule associated with the specified ID.
+        /// </returns>
+        Task<WarningEscalationRule> GetWarningEscalationRuleByIdAsync(int ruleId);
 
         /// <summary>
         /// Handles warning escalation.

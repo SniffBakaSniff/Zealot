@@ -9,6 +9,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using System.Reflection;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using System.Data.Common;
+using System.Data;
 
 namespace Zealot.Shared.Services
 {
@@ -156,6 +159,22 @@ namespace Zealot.Shared.Services
         {
             // AsNoTracking as its a readonly queary
             return await dbContext.WarningEscalationRules.Where(w => w.GuildId == guildId).AsNoTracking().ToListAsync();
+        }
+        #endregion
+
+        #region ClearWarningEscalationAsync
+        public async Task ClearWarningEscalationAsync(int ruleId)
+        {
+            var rule = await dbContext.WarningEscalationRules.Where(w => w.Id == ruleId).FirstOrDefaultAsync();
+            dbContext.WarningEscalationRules.Remove(rule!);
+            await dbContext.SaveChangesAsync();
+        }
+        #endregion
+        #region GetWarningEscalationRuleByIdAsync
+        public async Task<WarningEscalationRule> GetWarningEscalationRuleByIdAsync(int ruleId)
+        {
+            WarningEscalationRule? escalationRule = await dbContext.WarningEscalationRules.Where(w => w.Id == ruleId).FirstOrDefaultAsync() ?? throw new NotImplementedException();
+            return escalationRule;
         }
         #endregion
 
