@@ -32,6 +32,7 @@ namespace Zealot.Bot.Commands
             }
 
             // Defer the repsonse
+            // No real reason for this but imma leave it for now
             await ctx.DeferResponseAsync();
 
             // Get the member from the guild

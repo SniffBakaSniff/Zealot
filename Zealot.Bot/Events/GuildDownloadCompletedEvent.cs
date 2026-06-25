@@ -36,18 +36,12 @@ namespace Zealot.Bot.Events
                 new DiscordActivity("Interpreting divine pings...", DiscordActivityType.Custom),
                 new DiscordActivity("Wandering the debug desert", DiscordActivityType.Custom),
                 new DiscordActivity("Smite first. Ask later.", DiscordActivityType.Custom),
-                new DiscordActivity("Reading the Book of /help", DiscordActivityType.Custom),
                 new DiscordActivity("Blessed by bugs 🐛", DiscordActivityType.Custom),
-                new DiscordActivity("Zealot", DiscordActivityType.Custom),
                 new DiscordActivity("Praying to the stack trace gods 🙏", DiscordActivityType.Custom),
-                new DiscordActivity("Sacrificing RAM for wisdom", DiscordActivityType.Custom),
                 new DiscordActivity("Logging sins", DiscordActivityType.Custom),
                 new DiscordActivity("Judging your uptime ⏳", DiscordActivityType.Custom),
                 new DiscordActivity("Performing miracles... slowly", DiscordActivityType.Custom),
-                new DiscordActivity("Baptizing noobs", DiscordActivityType.Custom),
                 new DiscordActivity("Excommunicating null references", DiscordActivityType.Custom),
-                new DiscordActivity("Executing the sacred loop", DiscordActivityType.Custom),
-                new DiscordActivity("Clerical errors: 0", DiscordActivityType.Custom),
                 new DiscordActivity("Fasting... from updates", DiscordActivityType.Custom),
                 new DiscordActivity("Communing with the API spirits", DiscordActivityType.Custom),
                 new DiscordActivity("Channeling divine exception handling", DiscordActivityType.Custom),
@@ -59,29 +53,34 @@ namespace Zealot.Bot.Events
 
             var rng = new Random();
 
-            await Task.Run(async () =>
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        var status = statuses[rng.Next(statuses.Length)];
+            var status = statuses[rng.Next(statuses.Length)];
+            await client.UpdateStatusAsync(
+                status,
+                DiscordUserStatus.Online);
 
-                        await client.UpdateStatusAsync(
-                            status,
-                            DiscordUserStatus.Online);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "Failed to update status");
-                    }
+            //await Task.Run(async () =>
+            //{
+            //    while (!cancellationToken.IsCancellationRequested)
+            //    {
+            //        try
+            //        {
+            //            var status = statuses[rng.Next(statuses.Length)];
 
-                    await Task.Delay(
-                        TimeSpan.FromMinutes(10),
-                        cancellationToken);
-                }
-            }, cancellationToken);
-            Log.Information("Status Cycleing Initalized");
+            //            await client.UpdateStatusAsync(
+            //                status,
+            //                DiscordUserStatus.Online);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Log.Error(ex, "Failed to update status");
+            //        }
+
+            //        await Task.Delay(
+            //            TimeSpan.FromMinutes(10),
+            //            cancellationToken);
+            //    }
+            //}, cancellationToken);
+            //Log.Information("Status Cycleing Initalized");
         }
         #endregion
     }

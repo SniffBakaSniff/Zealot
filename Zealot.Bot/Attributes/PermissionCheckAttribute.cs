@@ -20,48 +20,23 @@ namespace Zealot.Bot.Attributes
     /// [PermissionCheck("admin_command", developerOnly: true)]
     /// public async Task AdminCommand(CommandContext ctx) { }
     /// </remarks>
+    /// <remarks>
+    /// Initializes a new instance of the PermissionCheckAttribute.
+    /// </remarks>
+    /// <param name="permissionKey">The unique identifier for this permission check</param>
+    /// <param name="userBypass">Whether the command is publicly available when no permissions are set</param>
+    /// <param name="developerOnly">Whether only bot developers can use this command</param>
     [AttributeUsage(AttributeTargets.Method)]
-    public class PermissionCheckAttribute : ContextCheckAttribute
+    public class PermissionCheckAttribute(
+        string permissionKey,
+        bool userBypass = false,
+        bool developerOnly = false
+        ) : ContextCheckAttribute
     {
-        /// <summary>
-        /// The unique identifier for the permission being checked.
-        /// This key is used to look up permission settings in the guild's configuration.
-        /// </summary>
-        public string PermissionKey { get; }
-
-        /// <summary>
-        /// If true and no permissions are set (empty users and roles lists), all users can use the command.
-        /// If false, the command requires explicit permission assignment.
-        /// </summary>
-        public bool UserBypass { get; }
-
-        /// <summary>
-        /// If true, only the bot developer(s) can use this command.
-        /// This overrides all other permission checks.
-        /// </summary>
-        public bool DeveloperOnly { get; }
-
-        /// <summary>
-        /// List of developer user IDs that can use developer-only commands.
-        /// </summary>
+        public string PermissionKey { get; } = permissionKey;
+        public bool UserBypass { get; } = userBypass;
+        public bool DeveloperOnly { get; } = developerOnly;
         public static readonly ulong[] DeveloperIds = [509585751487545345];
-
-        /// <summary>
-        /// Initializes a new instance of the PermissionCheckAttribute.
-        /// </summary>
-        /// <param name="permissionKey">The unique identifier for this permission check</param>
-        /// <param name="userBypass">Whether the command is publicly available when no permissions are set</param>
-        /// <param name="developerOnly">Whether only bot developers can use this command</param>
-        public PermissionCheckAttribute(
-            string permissionKey,
-            bool userBypass = false,
-            bool developerOnly = false
-        )
-        {
-            PermissionKey = permissionKey;
-            UserBypass = userBypass;
-            DeveloperOnly = developerOnly;
-        }
     }
 
     /// <summary>

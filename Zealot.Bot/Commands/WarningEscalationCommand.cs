@@ -9,7 +9,7 @@ namespace Zealot.Bot.Commands
 {
     public partial class CommandsGroup
     {
-        [Command("warning-escalation")]
+        [Command("warning_escalation")]
         [Description("Sets or updates a warning escalation rule.")]
         public async Task WarningEscalation(CommandContext ctx, 
             [Description("The amount of warnings.")]int warningCount, 
@@ -48,15 +48,17 @@ namespace Zealot.Bot.Commands
             }
             catch(DuplicateWarningEscalationRuleException)
             {
-                var embed = new DiscordEmbedBuilder().WithDescription($"There is already a rule for {warningCount} warnings.").WithColor(DiscordColor.Gray);
-                var response = new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral();
-                await ctx.RespondAsync(response);
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(
+                    new DiscordEmbedBuilder()
+                    .WithDescription($"There is already a rule for {warningCount} warnings.")
+                    .WithColor(DiscordColor.Gray)).AsEphemeral());
             }
             catch(MaximumWarningEscalationRuleException ex)
             {
-                var embed = new DiscordEmbedBuilder().WithDescription($"You’ve hit the limit of {ex.MaxAllowed} warning escalation rules.\nDelete an existing rule to create a new one.").WithColor(DiscordColor.Gray);
-                var response = new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral();
-                await ctx.RespondAsync(response);
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(
+                    new DiscordEmbedBuilder()
+                    .WithDescription($"You’ve hit the limit of {ex.MaxAllowed} warning escalation rules.\nDelete an existing rule to create a new one.")
+                    .WithColor(DiscordColor.Gray)).AsEphemeral());
             }
         }
     }

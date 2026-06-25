@@ -39,10 +39,9 @@ namespace Zealot.Bot.Commands
 
             if (!warnings.Any())
             {
-                await ctx.RespondAsync(
-                    user is not null
-                        ? $"{user.Mention} has no warnings."
-                        : "No warnings found.");
+                var noWarningsEmbed = new DiscordEmbedBuilder()
+                    .WithDescription(user is not null ? $"{user.Mention} has no warnings." : "No warnings found.");
+                await ctx.RespondAsync(noWarningsEmbed);
                 return;
             }
 
@@ -51,9 +50,7 @@ namespace Zealot.Bot.Commands
 
             if (user is not null)
             {
-                embed
-                    .WithTitle($"Warnings for {user.Username}")
-                    .WithThumbnail(user.GetAvatarUrl(DSharpPlus.MediaFormat.Auto));
+                embed.WithTitle($"Warnings for {user.Username}").WithThumbnail(user.GetAvatarUrl(DSharpPlus.MediaFormat.Auto));
             }
             else
             {
