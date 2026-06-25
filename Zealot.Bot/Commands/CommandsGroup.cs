@@ -8,9 +8,7 @@ namespace Zealot.Bot.Commands
         IModerationLogService moderationLogService,
         IGuildSettingService guildSettingService,
         ITaskSchedulerService taskSchedulerService,
-        IWarningService warningService,
-        DocumentationIndex documentationIndex
-        )
+        IWarningService warningService)
     {
         // handle dependency injection here
         private readonly IModerationLogService _moderationLogService = moderationLogService;
