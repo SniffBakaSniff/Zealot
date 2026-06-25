@@ -126,9 +126,6 @@ namespace Zealot.Bot
                 services.AddScoped<IAutoCompleteProvider, WarningsAutoComplete>();
                 services.AddScoped<IGuildDataService, GuildDataService>();
 
-                services.AddSingleton<XmlDocProvider>();
-                services.AddSingleton<DocumentationIndex>();
-
                 services.AddLogging(logging =>
                 {
                     logging.AddSerilog(Log.Logger, dispose: true);
