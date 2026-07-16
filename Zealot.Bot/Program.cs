@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
+using Microsoft.EntityFrameworkCore;
 
 using Zealot.Shared.Services;
 using Zealot.Bot.Attributes;
@@ -15,6 +16,7 @@ using Zealot.Shared.Services.Interfaces;
 using Zealot.Shared.Database;
 using Zealot.Bot.Events;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+using Npgsql;
 
 namespace Zealot.Bot
 {
@@ -41,7 +43,7 @@ namespace Zealot.Bot
                 Log.Information("Starting Zealot...");
                 var discordToken = ValidateDiscordToken();
                 var builder = CreateDiscordClientBuilder(discordToken);
-                var dbContext = new BotDbContext();
+                //var dbContext = new BotDbContext();
 
                 ConfigureServices(builder);
                 ConfigureCommands(builder);
@@ -49,7 +51,7 @@ namespace Zealot.Bot
 
                 client = builder.Build();
 
-                await PerformHealthCheck(dbContext);
+                //await PerformHealthCheck(dbContext);
                 await StartBot(client);
             }
             catch (OperationCanceledException ex)
@@ -117,7 +119,25 @@ namespace Zealot.Bot
         {
             builder.ConfigureServices(services =>
             {
-                services.AddDbContext<BotDbContext>();
+                var botConnectionString =
+                    "Host=localhost;Database=ZealotTest;Username=postgres;Password=Subaka1@;Maximum Pool Size=50;Minimum Pool Size=5;";
+                    
+                services.AddSingleton(sp =>
+                {
+                    var builder = new NpgsqlDataSourceBuilder(botConnectionString);
+
+                    builder.EnableDynamicJson();
+
+                    return new BotDataSource(builder.Build());
+                });
+
+                // Register the BodDbContext 
+                services.AddDbContext<BotDbContext>((sp, options) =>
+                {
+                    options.UseNpgsql(
+                        sp.GetRequiredService<BotDataSource>().DataSource);
+                });
+
                 services.AddScoped<IPrefixResolver, CustomPrefixResolver>();
                 services.AddScoped<IModerationLogService, ModerationLogService>();
                 services.AddScoped<IGuildSettingService, GuildSettingService>();
@@ -125,6 +145,7 @@ namespace Zealot.Bot
                 services.AddScoped<IWarningService, WarningService>();
                 services.AddScoped<IAutoCompleteProvider, WarningsAutoComplete>();
                 services.AddScoped<IGuildDataService, GuildDataService>();
+                services.AddSingleton<ITimeoutService, TimeoutService>();
 
                 services.AddLogging(logging =>
                 {
@@ -142,7 +163,19 @@ namespace Zealot.Bot
             builder.UseCommands(
                 (_, extension) =>
                 {
-                    extension.AddCommands([typeof(CommandsGroup)]);
+                    extension.AddCommands<BanCommands>();
+                    extension.AddCommands<CommandPermissionsCommand>();
+                    extension.AddCommands<SetupCommand>();
+                    extension.AddCommands<KickCommand>();
+                    extension.AddCommands<LogsCommands>();
+                    extension.AddCommands<PingCommand>();
+                    extension.AddCommands<PrefixCommand>();
+                    extension.AddCommands<PurgeCommand>();
+                    extension.AddCommands<SlashTimeoutCommands>();
+                    extension.AddCommands<TextTimeoutCommands>();
+                    extension.AddCommands<WarnCommand>();
+                    extension.AddCommands<WarningEscalationCommand>();
+                    extension.AddCommands<WarningsCommand>();
 
                     var textCommandProcessor = new TextCommandProcessor(new TextCommandConfiguration());
                     var slashCommandProcessor = new SlashCommandProcessor(
@@ -156,7 +189,7 @@ namespace Zealot.Bot
                 new CommandsConfiguration
                 {
                     RegisterDefaultCommandProcessors = true,
-                    UseDefaultCommandErrorHandler = true,
+                    UseDefaultCommandErrorHandler = false,
                 }
             );
         }
@@ -170,6 +203,11 @@ namespace Zealot.Bot
                 events.AddEventHandlers<GuildCreatedEvent>(ServiceLifetime.Scoped);
                 events.AddEventHandlers<GuildDeletedEvent>(ServiceLifetime.Scoped);
                 events.AddEventHandlers<GuildDownloadCompletedEvent>(ServiceLifetime.Scoped);
+                // Disabled for Now: events.AddEventHandlers<MessageCreatedEvent>(ServiceLifetime.Scoped);
+                // Disabled for Now: events.AddEventHandlers<MessageUpdatedEvent>(ServiceLifetime.Scoped);
+                // Disabled for Now: events.AddEventHandlers<MessageDeletedEvent>(ServiceLifetime.Scoped);
+                // Disabled for Now: events.AddEventHandlers<MessageReactionAddedEvent>(ServiceLifetime.Scoped);
+                // Disabled for Now: events.AddEventHandlers<MessageReactionRemovedEvent>(ServiceLifetime.Scoped);
             });
         }
         #endregion

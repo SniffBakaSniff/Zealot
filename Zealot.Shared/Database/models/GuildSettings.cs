@@ -8,6 +8,5 @@ namespace Zealot.Shared.Database.Models
         public ulong GuildId { get; set; }
         public string Prefix { get; set; } = "!";
         public ulong? ModerationLogChannel { get; set; }
-        public ulong? MutedRoleId { get; set; }
     }
 }

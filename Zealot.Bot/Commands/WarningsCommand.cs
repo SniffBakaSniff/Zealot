@@ -1,21 +1,26 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
+using Zealot.Bot.Attributes;
 using Zealot.Shared.Database.Models;
+using Zealot.Shared.Enums;
+using Zealot.Shared.Services;
+using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
 {
-    public partial class CommandsGroup
+    [Command("warnings")]
+    public class WarningsCommand(IWarningService warningService)
     {
         // TODO: Add a way to view a specific warning's details for an un truncated reason (e.g., /warninginfo warningId) and include the full reason, date, and moderator information in the response.
-        [Command("warnings")]
+        [Command("view")]
         [Description("Fetches warnings for a user from the database. (Testing purposes)")]
-        [RequirePermissions(DiscordPermission.ModerateMembers)]
+        [PermissionCheck(CommandPermissions.ViewWarnings, defaultPermission: DiscordPermission.ModerateMembers)]
         public async Task FetchWarningsAsync(
-            CommandContext ctx,
-            [Description("The user to fetch warnings for.")] DiscordMember? user = null,
-            [Description("Send the response as ephemeral?")] bool ephemeral = false)
+            SlashCommandContext ctx,
+            [Description("The user to fetch warnings for.")] DiscordMember? user = null)
         {
             if (ctx.Guild is null)
             {
@@ -27,13 +32,13 @@ namespace Zealot.Bot.Commands
 
             if (user is not null)
             {
-                warnings = await _warningService.GetWarningsForUserAsync(
+                warnings = await warningService.GetWarningsForUserAsync(
                     ctx.Guild.Id,
                     user.Id);
             }
             else
             {
-                warnings = await _warningService.GetPaginatedWarningsForGuildAsync(
+                warnings = await warningService.GetPaginatedWarningsForGuildAsync(
                     ctx.Guild.Id);
             }
 
@@ -88,8 +93,7 @@ namespace Zealot.Bot.Commands
 
             await ctx.RespondAsync(
                 new DiscordInteractionResponseBuilder()
-                    .AddEmbed(embed)
-                    .AsEphemeral(ephemeral));
+                    .AddEmbed(embed));
         }
     }
 }

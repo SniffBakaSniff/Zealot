@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using Serilog;
+using Zealot.Shared.Enums;
 
 // Can be Modified in the future for fully customizable per-server permission handilng.
 namespace Zealot.Bot.Attributes
@@ -28,14 +29,16 @@ namespace Zealot.Bot.Attributes
     /// <param name="developerOnly">Whether only bot developers can use this command</param>
     [AttributeUsage(AttributeTargets.Method)]
     public class PermissionCheckAttribute(
-        string permissionKey,
+        CommandPermissions permissionKey,
         bool userBypass = false,
-        bool developerOnly = false
+        bool developerOnly = false,
+        DiscordPermission defaultPermission = DiscordPermission.ModerateMembers
         ) : ContextCheckAttribute
     {
-        public string PermissionKey { get; } = permissionKey;
+        public CommandPermissions PermissionKey { get; } = permissionKey;
         public bool UserBypass { get; } = userBypass;
         public bool DeveloperOnly { get; } = developerOnly;
+        public DiscordPermission DefaultPermission = DiscordPermission.ModerateMembers;
         public static readonly ulong[] DeveloperIds = [509585751487545345];
     }
 
@@ -67,10 +70,16 @@ namespace Zealot.Bot.Attributes
             // Log the start of the permission check
             Log.Information(
                 "Permission check started for command '{PermissionKey}' in guild {GuildId} by user {UserId}.",
-                attribute.PermissionKey
+                attribute.PermissionKey, context.Guild?.Id, context.User.Id
             );
 
             ulong userId = context.User.Id;
+
+            // Check if UserBypass
+            if (attribute.UserBypass)
+            {
+                return null;
+            }
 
             // Check if this is a developer-only command
             if (attribute.DeveloperOnly)
@@ -113,6 +122,12 @@ namespace Zealot.Bot.Attributes
                     userId,
                     attribute.PermissionKey
                 );
+                return null;
+            }
+
+            // Check defaultPermissionCheck
+            if (context.Member!.Permissions.HasPermission(attribute.DefaultPermission))
+            {
                 return null;
             }
 

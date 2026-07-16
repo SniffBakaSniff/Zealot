@@ -3,17 +3,18 @@ using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 
 using Zealot.Bot.Attributes;
+using Zealot.Shared.Enums;
+using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
 {
-    public partial class CommandsGroup
+    public class PingCommand
     {
         [Command("ping")]
         [Description("Checks the bot's response time and uptime.")]
-        [PermissionCheck("ping_command", userBypass: true)]
+        [PermissionCheck(CommandPermissions.UsePing, userBypass: true)]
         public async Task PingAsync(
-            CommandContext ctx,
-            [Description("Send the response as ephemeral?")] bool ephemeral = true)
+            CommandContext ctx)
         {
 
             // Retrieve the bot's current latency for this guild and calculate uptime since launch.
@@ -32,9 +33,7 @@ namespace Zealot.Bot.Commands
             // Send the embed response, optionally as ephemeral (visible only to the user).
             await ctx.RespondAsync(
                 new DiscordInteractionResponseBuilder()
-                    .AddEmbed(embed)
-                    .AsEphemeral(ephemeral)
-            );
+                    .AddEmbed(embed));
         }
     }
 }

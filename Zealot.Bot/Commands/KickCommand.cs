@@ -2,22 +2,24 @@ using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
+using Zealot.Bot.Attributes;
 using Zealot.Shared.Enums;
+using Zealot.Shared.Services;
+using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
 {
-    public partial class CommandsGroup
+    public class KickCommand(IModerationLogService moderationLogService)
     {
         [Command("kick")]
         [Description("Kicks a user from the server.")]
-        [RequirePermissions(DiscordPermission.KickMembers)]
-        public async Task KickCommand(CommandContext ctx,
+        [PermissionCheck(CommandPermissions.KickMembers, defaultPermission: DiscordPermission.KickMembers)]
+        public async Task ExecuteKickCommand(SlashCommandContext ctx,
             [RequireHigherUserHierarchy][Description("The user to kick from the server.")] DiscordMember target,
             [Description("The reason for the kick.")] string? reason = null,
-            [Description("An image to be attached as reference or evidence for this log entry")] DiscordAttachment? image = null,
-            [Description("Whether to send the kick reason to the user via DM.")] bool sendReason = true,
-            [Description("Send the response as ephemeral?")] bool ephemeral = false)
+            [Description("An image to be attached as reference or evidence for this log entry")] DiscordAttachment? image = null)
         {
             // Check if the moderator is higher in the hierarchy than the target.
             if (target.Hierarchy >= ctx.Guild!.CurrentMember.Hierarchy)
@@ -48,7 +50,7 @@ namespace Zealot.Bot.Commands
 
             if (image is not null)
             {
-                var errorResponse = await _moderationLogService.IsValidAttachment(image);
+                var errorResponse = await moderationLogService.IsValidAttachment(image);
                 if (errorResponse is not null)
                 {
                     await ctx.EditResponseAsync(errorResponse);
@@ -64,7 +66,7 @@ namespace Zealot.Bot.Commands
                     .WithColor(DiscordColor.Gray)
                     .WithTimestamp(DateTime.UtcNow);
 
-                if (sendReason && reason is not null)
+                if (reason is not null)
                     dmEmbed.AddField("Reason", $"```{reason}```");
 
                 await target.SendMessageAsync(dmEmbed);
@@ -97,14 +99,13 @@ namespace Zealot.Bot.Commands
 
             // Build the response
             var response = new DiscordInteractionResponseBuilder()
-            .AddEmbed(embed)
-            .AsEphemeral(ephemeral);
+            .AddEmbed(embed);
 
             // Send the response
             await ctx.EditResponseAsync(response);
 
             // Log the ban
-            await _moderationLogService.LogModeratorActionAsync(
+            await moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 target.Id,
                 ctx.User.Id,

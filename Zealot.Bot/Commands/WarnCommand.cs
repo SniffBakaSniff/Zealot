@@ -1,20 +1,23 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
+using Zealot.Bot.Attributes;
 using Zealot.Shared.Enums;
+using Zealot.Shared.Services;
+using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
 {
-    public partial class CommandsGroup
+    public class WarnCommand(IWarningService warningService, IModerationLogService moderationLogService)
     {
         [Command("warn")]
         [Description("Issues a warning to a user.")]
-        [RequirePermissions(DiscordPermission.ModerateMembers)]
-        public async Task Warn(CommandContext ctx,
+        [PermissionCheck(CommandPermissions.WarnMembers, defaultPermission: DiscordPermission.ModerateMembers)]
+        public async Task WarnAsync(SlashCommandContext ctx,
             [Description("The user to warn.")] DiscordMember user,
-            [Description("The reason for the warning.")] string? reason = null,
-            [Description("Send the response as ephemeral?")] bool ephemeral = false)
+            [Description("The reason for the warning.")] string? reason = null)
         {
             // Check if the moderator is higher in the hierarchy than the target.
             if (user.Hierarchy >= ctx.Guild!.CurrentMember.Hierarchy)
@@ -42,13 +45,11 @@ namespace Zealot.Bot.Commands
             }
 
             // Add the warning to the database
-            await _warningService.AddWarningAsync(ctx.Guild!.Id, user.Id, ctx.User.Id, reason);
+            await warningService.AddWarningAsync(ctx.Guild!.Id, user.Id, ctx.User.Id, reason);
 
             // Get the total warning count for the user
-            int warningCount = await _warningService.GetWarningCountAsync(ctx.Guild.Id, user.Id);
+            int warningCount = await warningService.GetWarningCountAsync(ctx.Guild.Id, user.Id);
 
-            //TODO: Add automatic punishment based on warning count (e.g., 3 warnings = 1 day mute, 5 warnings = 3 day mute, 7 warnings = ban, etc.)
-            //TODO: Add a way to configure the warning thresholds and corresponding punishments in the database
             //TODO: Add a way to reset warning counts after a certain period of time (e.g., 6 months) or allow moderators to manually reset warning counts for users.
             //TODO: Add a way to remove specific warnings from a user (e.g., /removewarning @user warningId).
             //TODO: Add a way to clear all warnings from a user (e.g., /clearwarnings @user).
@@ -64,8 +65,7 @@ namespace Zealot.Bot.Commands
                 .WithColor(DiscordColor.Gray);
 
             var response = new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed)
-                .AsEphemeral(ephemeral);
+                .AddEmbed(embed);
 
             await ctx.RespondAsync(response);
 
@@ -87,7 +87,7 @@ namespace Zealot.Bot.Commands
             catch { } // Do nothing if the DM fails
 
             // Log the Warn 
-            await _moderationLogService.LogModeratorActionAsync(
+            await moderationLogService.LogModeratorActionAsync(
                 ctx.Guild!.Id,
                 user.Id,
                 ctx.User.Id,
@@ -96,7 +96,7 @@ namespace Zealot.Bot.Commands
                 embed: embed);
 
             // Check for warning escalation
-            await _warningService.WarningescalationAsync(ctx.Guild.Id, user.Id);
+            await warningService.WarningescalationAsync(ctx.Guild.Id, user.Id);
         }
     }
 }

@@ -1,27 +1,31 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using System.ComponentModel;
+using Zealot.Bot.Attributes;
 using Zealot.Shared.Enums;
+using Zealot.Shared.Services;
+using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
 {
-    public partial class CommandsGroup
+    [Command("logs")]
+    public class LogsCommands(IModerationLogService moderationLogService)
     {
-        [Command("logs")]
+        [Command("view")]
         [Description("Fetches moderator logs with optional filters.")]
-        [RequirePermissions(DiscordPermission.ModerateMembers)]
-        public async Task LogsCommand(
-            CommandContext ctx,
+        [PermissionCheck(CommandPermissions.ViewLogs, defaultPermission: DiscordPermission.ModerateMembers)]
+        public async Task LogsCommandAsync(
+            SlashCommandContext ctx,
             [Description("Filter by user ID.")] ulong? userId = null,
             [Description("Filter by moderator ID.")] ulong? moderatorId = null,
             [Description("Filter by action type (e.g., warn, ban, mute).")] ModerationType? actionType = null,
             [Description("Only show logs created after this date (YYYY-MM-DDTHH:MM).")] string? createdAfter = null,
             [Description("Only show logs created before this date (YYYY-MM-DDTHH:MM).")] string? createdBefore = null,
             [Description("Page Number.")] int page = 1,
-            [Description("Number of items per page.")] int pageSize = 5,
-            [Description("Send the response as ephemeral?")] bool ephemeral = true
-        )
+            [Description("Number of items per page.")] int pageSize = 5)
         {
             // Send a message if the command is sent in DMs
             if (ctx.Guild is null)
@@ -57,7 +61,7 @@ namespace Zealot.Bot.Commands
             }
 
             // Get the logs using the _moderationLogService
-            var logs = await _moderationLogService.GetModeratorLogsAsync(
+            var logs = await moderationLogService.GetModeratorLogsAsync(
                 guildId: ctx.Guild.Id,
                 userId: userId,
                 moderatorId: moderatorId,
@@ -68,7 +72,7 @@ namespace Zealot.Bot.Commands
                 page: page
             );
 
-            int totalLogs = (await _moderationLogService.GetModeratorLogsAsync(ctx.Guild.Id)).Count();
+            int totalLogs = (await moderationLogService.GetModeratorLogsAsync(ctx.Guild.Id)).Count();
             int totalPages = (int)Math.Ceiling((double)totalLogs / pageSize);
 
             // Send a message if no logs match the filter.
@@ -101,7 +105,85 @@ namespace Zealot.Bot.Commands
                 embed.AddField($"Case #{log.CaseNumber} - `{log.ActionType}`", fieldValue, inline: false);
             }
 
-            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed));
+        }
+
+        [Command("specific")]
+        [Description("Command for viewing a specifc log.")]
+        [PermissionCheck(CommandPermissions.ViewLogs, defaultPermission: DiscordPermission.ModerateMembers)]
+        public async Task SpecificLogCommandAsync(SlashCommandContext ctx,
+        [Description("The case number of the log you want to view.")] int caseNumber)
+        {
+            // Get the log that corresponds with the case number
+            var log = await moderationLogService.GetModerationLogByCaseNumberAsync(ctx.Guild!.Id, caseNumber);
+
+            // Make sure the log exists
+            if (log is null)
+            {
+                await ctx.RespondAsync("That log dosnt exist");
+                return;
+            }
+
+            // Get the discord user for the moderator
+            DiscordUser moderator = await ctx.Client.GetUserAsync(log.ModeratorId);
+
+            // Get the dsicord user if the log has a user id
+            DiscordUser? user = null;
+            if (log.UserId.HasValue)
+            {
+                user = await ctx.Client.GetUserAsync(log.UserId.Value);
+            }
+
+            // Build and embed for the log
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle($"📝 Case #{log.CaseNumber} - `{log.ActionType}`")
+                .WithColor(DiscordColor.Gray);
+
+            if (user is not null)
+                embed.AddField("User", user.Mention);
+                embed = embed.WithThumbnail(user!.GetAvatarUrl(DSharpPlus.MediaFormat.Auto));
+
+
+            embed.AddField("Moderator:", moderator.Mention);
+
+            if (log.Duration.HasValue)
+                embed.AddField("Duration", FormatDuration(log.Duration.Value));
+                
+            if (!string.IsNullOrWhiteSpace(log.Reason))
+                embed.AddField("Reason", $"```{log.Reason}```");
+
+            embed.WithFooter($"Created").WithTimestamp(log.CreatedAt);
+
+            // Helper for formatting duration nicely
+            string FormatDuration(TimeSpan duration)
+            {
+                if (duration.TotalDays >= 1)
+                    return $"{(int)duration.TotalDays}d {duration.Hours}h";
+                if (duration.TotalHours >= 1)
+                    return $"{(int)duration.TotalHours}h {duration.Minutes}m";
+                if (duration.TotalMinutes >= 1)
+                    return $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
+                return $"{duration.Seconds}s";
+            }
+
+            if (log.Image is not null)
+            {
+                using var stream = new MemoryStream(log.Image);
+                string fileName = $"case_{log.CaseNumber}_image.jpg";
+
+                embed.WithImageUrl($"attachment://{fileName}");
+
+                var builder = new DiscordInteractionResponseBuilder().AddEmbed(embed)
+                    .AddFile(fileName, stream);
+
+                await ctx.RespondAsync(builder);
+                return;
+            }
+            
+            var response = new DiscordInteractionResponseBuilder()
+                .AddEmbed(embed);
+
+            await ctx.RespondAsync(response);
         }
     }
 }

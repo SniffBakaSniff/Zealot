@@ -90,6 +90,16 @@ namespace Zealot.Shared.Services
                 ExecuteAt = executeAt,
             };
 
+            var existing = await dbContext.ScheduledTasks.FirstOrDefaultAsync(x =>
+                x.TaskType == taskType &&
+                x.GuildId == guildId &&
+                x.UserId == userId);
+
+            if (existing is not null)
+            {
+                existing.ExecuteAt = executeAt;
+            }
+            
             dbContext.ScheduledTasks.Add(newTask);
             await dbContext.SaveChangesAsync();
         }
@@ -138,17 +148,6 @@ namespace Zealot.Shared.Services
                 // Unbans a user. Might make it log the action.
                 case TaskType.UnBan:
                     await guild.UnbanMemberAsync(user);
-                    break;
-
-                case TaskType.UnMute:
-                    ulong? mutedRoleId = await guildSettingService.GetMutedRoleIdAsync(guild.Id);
-                    if (mutedRoleId is null)
-                    {
-                        return;
-                    }
-                    var mutedRole = await guild.GetRoleAsync(mutedRoleId.Value);
-                    var member = await guild.GetMemberAsync(user.Id);
-                    await member.RevokeRoleAsync(mutedRole);
                     break;
             }
         }

@@ -1,32 +1,21 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Zealot.Shared.Database.Models;
 
 namespace Zealot.Shared.Database
 {
     /// <summary>
-    /// Database context for the CountingBot application.
+    /// Database context for Zealot.
     /// </summary>
-    public class BotDbContext : DbContext
+    public class BotDbContext(DbContextOptions<BotDbContext> options) : DbContext(options)
     {
-        public BotDbContext() { }
-
         public DbSet<GuildSettings> GuildSettings { get; set; }
         public DbSet<WarningData> WarningData { get; set; }
         public DbSet<ModeratorLogs> ModeratorLogs { get; set; }
         public DbSet<ScheduledTasks> ScheduledTasks { get; set; }
         public DbSet<GuildsData> GuildsData { get; set; }
         public DbSet<WarningEscalationRule> WarningEscalationRules { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // Only configure if no options have been passed in (e.g., by dependency injection)
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseNpgsql(
-                  "Host=localhost;Database=ZealotTest;Username=postgres;Password=Subaka1@;Maximum Pool Size=128;Minimum Pool Size=5;");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,5 +27,10 @@ namespace Zealot.Shared.Database
             })
             .IsUnique();
         }
+    }
+
+    public sealed class BotDataSource(NpgsqlDataSource dataSource)
+    {
+        public NpgsqlDataSource DataSource { get; } = dataSource;
     }
 }

@@ -1,16 +1,21 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
+using Zealot.Bot.Attributes;
+using Zealot.Shared.Enums;
+using Zealot.Shared.Services;
+using Zealot.Shared.Services.Interfaces;
 
 namespace Zealot.Bot.Commands
 {
-    public partial class CommandsGroup
+    public class PrefixCommand(IGuildSettingService guildSettingService)
     {
         [Command("prefix")]
-        [Description("Sets the command prefix for the bot.")]
-        [RequirePermissions(DiscordPermission.ModerateMembers)]
-        public async Task prefix(CommandContext ctx,
+        [Description("Sets or views the command prefix for the bot.")]
+        [PermissionCheck(CommandPermissions.ManagePrefix, defaultPermission: DiscordPermission.ModerateMembers)]
+        public async Task PrefixAsync(CommandContext ctx,
         [Description("The new prefix for the bot. (e.g. `!` or `~`)")] string? prefix = null)
         {
             ulong guildId = ctx.Guild!.Id;
@@ -30,43 +35,44 @@ namespace Zealot.Bot.Commands
 
                 // Send the response
                 await ctx.RespondAsync(response);
+                return;
             }
 
-                // If no prefix is provided then get the current prefix
-                if (prefix is null)
-                {
-                    // Get the prefix
-                    prefix = await _guildSettingService.GetGuildPrefixAsync(guildId);
+            // If no prefix is provided then get the current prefix
+            if (prefix is null)
+            {
+                // Get the prefix
+                prefix = await guildSettingService.GetGuildPrefixAsync(guildId);
 
-                    // Build the emebed
-                    var embed = new DiscordEmbedBuilder()
-                        .WithDescription($"The Current prefix is **`{prefix}`**")
-                        .WithColor(DiscordColor.Gray);
+                // Build the emebed
+                var embed = new DiscordEmbedBuilder()
+                    .WithDescription($"The Current prefix is **`{prefix}`**")
+                    .WithColor(DiscordColor.Gray);
 
-                    // Build the repsonse
-                    var response = new DiscordInteractionResponseBuilder()
-                        .AddEmbed(embed);
-
-                    // Send the response
-                    await ctx.RespondAsync(response);
-                }
-                else
-                {
-                    // Set the prefix in the database
-                    await _guildSettingService.SetGuildPrefixAsync(guildId, prefix);
-
-                    // Build the embed
-                    var embed = new DiscordEmbedBuilder()
-                        .WithDescription($"prefix has been updated to **`{prefix}`**")
-                        .WithColor(DiscordColor.Gray);
-                        
-                    // Build the repsponse 
+                // Build the repsonse
                 var response = new DiscordInteractionResponseBuilder()
-                        .AddEmbed(embed);
+                    .AddEmbed(embed);
 
-                    // Send the response
-                    await ctx.RespondAsync(response);
-                }
+                // Send the response
+                await ctx.RespondAsync(response);
+            }
+            else
+            {
+                // Set the prefix in the database
+                await guildSettingService.SetGuildPrefixAsync(guildId, prefix);
+
+                // Build the embed
+                var embed = new DiscordEmbedBuilder()
+                    .WithDescription($"prefix has been updated to **`{prefix}`**")
+                    .WithColor(DiscordColor.Gray);
+                    
+                // Build the repsponse 
+            var response = new DiscordInteractionResponseBuilder()
+                    .AddEmbed(embed);
+
+                // Send the response
+                await ctx.RespondAsync(response);
+            }
         }
     }
 }

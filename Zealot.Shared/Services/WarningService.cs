@@ -255,14 +255,9 @@ namespace Zealot.Shared.Services
                     break;
                 }
 
-                case WarningEscalationType.Mute:
+                case WarningEscalationType.timeout:
                 {
-                    ulong? mutedRoleId = await dbContext.GuildSettings.Where(w => w.GuildId == guildId).Select(s => s.MutedRoleId).FirstOrDefaultAsync(); 
-                    if (mutedRoleId is null)
-                    {
-                        break;
-                    }
-                    await user.GrantRoleAsync(await guild.GetRoleAsync(mutedRoleId.Value));
+                    await user.TimeoutAsync(DateTime.UtcNow.AddHours((int)duration));
                     if (duration is not Duration.None)
                     {
                         DateTime date = DateTime.UtcNow.AddHours((int)duration);
@@ -272,7 +267,7 @@ namespace Zealot.Shared.Services
                             guildId,
                             userId,
                             client.CurrentApplication.Id,
-                            ModerationType.mute.ToString(),
+                            ModerationType.timeout.ToString(),
                             reason,
                             image: null,
                             embed: embed);

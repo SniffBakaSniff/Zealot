@@ -11,12 +11,6 @@ namespace Zealot.Shared.Enums
         tempBan,
         [ChoiceDisplayName("Unban")]
         unban,
-        [ChoiceDisplayName("Mute")]
-        mute,
-        [ChoiceDisplayName("Temporary Mute")]
-        tempMute,
-        [ChoiceDisplayName("Unmute")]
-        unmute,
         [ChoiceDisplayName("Kick")]
         kick,
         [ChoiceDisplayName("Purge")]
@@ -26,6 +20,8 @@ namespace Zealot.Shared.Enums
         [ChoiceDisplayName("Remove Warning")]
         removeWarning,
         [ChoiceDisplayName("Timeout")]
-        timeout
+        timeout,
+        [ChoiceDisplayName("Removed Timeout")]
+        RemoveTimeout,
     }
 }
